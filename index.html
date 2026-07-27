@@ -3,126 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حرفيين القرية - سلا | إصلاح وصيانة منزلية</title>
+    <title>حرفيين سلا والقرية | صيانة وإصلاح منزلي</title>
+    <!-- Tailwind CSS لتصميم أنيق وعصري -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
+        .service-card:hover { transform: translateY(-3px); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+<body class="bg-gradient-to-br from-slate-100 to-teal-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Header -->
-    <header class="bg-teal-700 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2 space-x-reverse">
-                <span class="text-2xl">🛠️</span>
-                <h1 class="text-xl font-extrabold tracking-wide">حرفيين القرية</h1>
+    <!-- Header / هيدر فاخر -->
+    <header class="bg-teal-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="bg-amber-400 p-2 rounded-xl text-teal-900 shadow">
+                    <i class="fa-solid fa-toolbox text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wide">حرفيين سلا</h1>
+                    <p class="text-xs text-teal-200">القرية - تابريكت - سلا الجديدة وكافة الأحياء</p>
+                </div>
             </div>
-            <span class="bg-teal-800 text-teal-200 text-xs px-3 py-1 rounded-full font-medium">سلا - تجريبي مجاناً</span>
+            <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs px-3 py-1 rounded-full font-bold">خدمة مجانية 100%</span>
         </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Main Container -->
     <main class="max-w-2xl mx-auto px-4 py-6 w-full flex-grow">
         
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center mb-6">
-            <h2 class="text-2xl font-bold text-slate-900 mb-2">خاصك معلم فـ القرية؟ 🏠</h2>
+        <!-- Hero Box -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-center mb-6">
+            <h2 class="text-2xl font-black text-slate-900 mb-2">محتاج معلم فـ سلا ولا القرية؟ 🛠️</h2>
             <p class="text-slate-600 text-sm leading-relaxed">
-                اختار الخدمة، الحي، والمعلم اللي يناسبك فـ القرية وتواصل معاه مباشرة!
+                اختار الحرفة، حدد موقعك، وتواصل مع أفضل المعالمية ولد الحومة مباشرة عبر الواتساب.
             </p>
         </div>
 
-        <form id="serviceForm" onsubmit="handleFormSubmit(event)" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
+        <form id="mainForm" class="bg-white p-6 md:p-8 rounded-3xl shadow-md border border-slate-200/80 space-y-6">
             
-            <!-- 1. اختيار الحرفة -->
+            <!-- 1. اختيار الحرفة (لوجوات وأيقونات واضحة) -->
             <div>
-                <label class="block font-bold text-slate-700 mb-2">1. شنو الحرفة اللي محتاج؟</label>
-                <div class="grid grid-cols-2 gap-3">
+                <label class="block font-bold text-slate-800 mb-3 text-base">1. شنو الحرفة اللي محتاج؟</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    
                     <label class="cursor-pointer">
-                        <input type="radio" name="service" value="بلومبي" class="peer hidden" required onchange="filterHandymen()">
-                        <div class="p-3 text-center rounded-xl border border-slate-200 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 font-medium transition-all flex flex-col items-center">
-                            <span class="text-2xl mb-1">💧</span>
-                            <span>بلومبي (سباك)</span>
+                        <input type="radio" name="service" value="بلومبي (سباك)" class="peer hidden" onchange="filterHandymen()" required>
+                        <div class="service-card p-3.5 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50/60 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center shadow-sm">
+                            <span class="text-3xl mb-1">💧</span>
+                            <span class="text-xs md:text-sm">بلومبي (سباك)</span>
                         </div>
                     </label>
+
                     <label class="cursor-pointer">
-                        <input type="radio" name="service" value="تريسيان" class="peer hidden" onchange="filterHandymen()">
-                        <div class="p-3 text-center rounded-xl border border-slate-200 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 font-medium transition-all flex flex-col items-center">
-                            <span class="text-2xl mb-1">⚡</span>
-                            <span>تريسيان (كهربائي)</span>
+                        <input type="radio" name="service" value="تريسيان (كهربائي)" class="peer hidden" onchange="filterHandymen()">
+                        <div class="service-card p-3.5 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50/60 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center shadow-sm">
+                            <span class="text-3xl mb-1">⚡</span>
+                            <span class="text-xs md:text-sm">تريسيان (كهربائي)</span>
                         </div>
                     </label>
+
                     <label class="cursor-pointer">
-                        <input type="radio" name="service" value="صباغ" class="peer hidden" onchange="filterHandymen()">
-                        <div class="p-3 text-center rounded-xl border border-slate-200 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 font-medium transition-all flex flex-col items-center">
-                            <span class="text-2xl mb-1">🎨</span>
-                            <span>صباغ / زليجي</span>
+                        <input type="radio" name="service" value="نجار (أثاث وخشب)" class="peer hidden" onchange="filterHandymen()">
+                        <div class="service-card p-3.5 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50/60 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center shadow-sm">
+                            <span class="text-3xl mb-1">🪚</span>
+                            <span class="text-xs md:text-sm">نجار (أثاث/خشب)</span>
                         </div>
                     </label>
+
                     <label class="cursor-pointer">
-                        <input type="radio" name="service" value="إصلاح الأجهزة" class="peer hidden" onchange="filterHandymen()">
-                        <div class="p-3 text-center rounded-xl border border-slate-200 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-700 font-medium transition-all flex flex-col items-center">
-                            <span class="text-2xl mb-1">🔌</span>
-                            <span>إصلاح الأجهزة</span>
+                        <input type="radio" name="service" value="ألومنيوم وحداد" class="peer hidden" onchange="filterHandymen()">
+                        <div class="service-card p-3.5 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50/60 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center shadow-sm">
+                            <span class="text-3xl mb-1">🪟</span>
+                            <span class="text-xs md:text-sm">ألومنيوم / حداد</span>
                         </div>
                     </label>
+
+                    <label class="cursor-pointer">
+                        <input type="radio" name="service" value="صباغ وزليجي" class="peer hidden" onchange="filterHandymen()">
+                        <div class="service-card p-3.5 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50/60 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center shadow-sm">
+                            <span class="text-3xl mb-1">🎨</span>
+                            <span class="text-xs md:text-sm">صباغ / زليجي</span>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer">
+                        <input type="radio" name="service" value="إصلاح الأجهزة والكلماطور" class="peer hidden" onchange="filterHandymen()">
+                        <div class="service-card p-3.5 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50/60 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center shadow-sm">
+                            <span class="text-3xl mb-1">❄️</span>
+                            <span class="text-xs md:text-sm">أجهزة / كلماطور</span>
+                        </div>
+                    </label>
+
                 </div>
             </div>
 
-            <!-- 2. تحديد الحي + خريطة Google Maps -->
+            <!-- 2. فين ساكن فـ سلا؟ -->
             <div>
-                <label class="block font-bold text-slate-700 mb-2">2. فين ساكن فالقرية؟</label>
-                <select id="quarter" class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium mb-3" required>
-                    <option value="" disabled selected>اختار الحي...</option>
-                    <option value="بوشوك">بوشوك</option>
-                    <option value="الحي المحمدي">الحي المحمدي</option>
-                    <option value="با حماد">با حماد</option>
-                    <option value="حي الواد">حي الواد</option>
-                    <option value="حي السلام">حي السلام</option>
+                <label class="block font-bold text-slate-800 mb-2 text-base">2. فين ساكن فـ سلا بالضبط؟</label>
+                <select id="quarter" class="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium mb-3" required>
+                    <option value="" disabled selected>اختار المنطقة فـ سلا...</option>
+                    <option value="القرية - بوشوك">القرية - بوشوك</option>
+                    <option value="القرية - الحي المحمدي">القرية - الحي المحمدي</option>
+                    <option value="القرية - با حماد">القرية - با حماد</option>
+                    <option value="القرية - حي الواد">القرية - حي الواد</option>
+                    <option value="تابريكت">تابريكت</option>
+                    <option value="بطانة">بطانة</option>
+                    <option value="سلا الجديدة">سلا الجديدة</option>
+                    <option value="العيايدة">العيايدة</option>
+                    <option value="منطقة أخرى ف سلا">منطقة أخرى ف سلا</option>
                 </select>
 
-                <!-- زر تحديد الموقع على الخريطة GPS -->
-                <button type="button" onclick="getLocation()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-xl border border-slate-300 transition-all flex items-center justify-center space-x-2 space-x-reverse text-sm">
-                    <span>📍 حدد موقعك بالضبط (Google Maps)</span>
-                </button>
-                <input type="hidden" id="locationUrl">
-                <p id="locationStatus" class="text-xs text-emerald-600 mt-1 font-medium hidden">✓ تم تحديد موقعك بنجاح!</p>
-            </div>
+                <!-- خريطة Google Maps لتحديد الموقع المباشر -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700">📍 تحديد موقعك التلقائي عبر GPS:</span>
+                        <button type="button" onclick="detectLocation()" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold py-2 px-3 rounded-xl shadow transition-all flex items-center space-x-1 space-x-reverse">
+                            <i class="fa-solid fa-location-crosshairs"></i>
+                            <span>حدد موقعي تلقائياً</span>
+                        </button>
+                    </div>
 
-            <!-- 3. توضيح المشكل + تسجيل صوتي (Audio) -->
-            <div>
-                <label class="block font-bold text-slate-700 mb-2">3. توضيح المشكل (كتابة أو أوديو):</label>
-                <textarea id="description" rows="2" placeholder="اكتب هنا شنو عندك..." class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm mb-2"></textarea>
-                
-                <!-- زر التسجيل الصوتي -->
-                <div class="flex items-center space-x-2 space-x-reverse">
-                    <button type="button" id="recordBtn" onclick="toggleRecording()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-2 rounded-xl text-xs font-bold border border-rose-200 transition-all flex items-center space-x-1 space-x-reverse">
-                        <span>🎙️ سجل أوديو يشرح المشكل</span>
-                    </button>
-                    <span id="recordingStatus" class="text-xs text-slate-500"></span>
+                    <!-- معاينة الخريطة التفاعلية -->
+                    <div id="mapContainer" class="w-full h-36 rounded-xl overflow-hidden border border-slate-300 relative bg-slate-200 flex items-center justify-center">
+                        <iframe id="googleMapIframe" class="w-full h-full hidden" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        <span id="mapPlaceholder" class="text-xs text-slate-500 font-medium text-center p-2">اضغط على "حدد موقعي تلقائياً" لتظهر خريطتك هنا 🗺️</span>
+                    </div>
+                    <input type="hidden" id="locationUrl">
                 </div>
             </div>
 
-            <!-- 4. الاسم والتلفون -->
+            <!-- 3. توضيح المشكل + أوديو فوكال -->
+            <div>
+                <label class="block font-bold text-slate-800 mb-2 text-base">3. شرح المشكل (كتابة أو تسجيل صوتي):</label>
+                <textarea id="description" rows="2" placeholder="اكتب هنا شنو عندك فالدار..." class="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm mb-3"></textarea>
+                
+                <!-- مسجل الصوت -->
+                <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2 space-x-reverse">
+                        <button type="button" id="recordBtn" onclick="toggleAudioRecord()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow transition-all flex items-center space-x-1.5 space-x-reverse">
+                            <i class="fa-solid fa-microphone"></i>
+                            <span id="recordBtnText">تسجيل أوديو (Vocal)</span>
+                        </button>
+                        <span id="audioStatus" class="text-xs font-bold text-slate-600">اختياري</span>
+                    </div>
+                    <p class="text-[10px] text-amber-800 max-w-[180px] leading-tight">سيتم إرسال التوضيح والتسجيل للمعلم فـ الشات مباشرة 📲</p>
+                </div>
+            </div>
+
+            <!-- 4. معلومات الزبون -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-sm">الاسم الكامل:</label>
-                    <input type="text" id="clientName" placeholder="اسمك الكريم" class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm" required>
+                    <input type="text" id="clientName" placeholder="اسمك الكريم" class="w-full p-3 rounded-xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm" required>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-sm">رقم الهاتف:</label>
-                    <input type="tel" id="clientPhone" placeholder="06XXXXXXXX" class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm" required>
+                    <input type="tel" id="clientPhone" placeholder="06XXXXXXXX" class="w-full p-3 rounded-xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm" required>
                 </div>
             </div>
 
-            <!-- 5. قائمة الأصطاوات والمعالمية (List of Handymen) -->
+            <!-- 5. قائمة الأصطاوات المتاحين -->
             <div class="pt-4 border-t border-slate-200">
-                <label class="block font-bold text-slate-800 mb-3 text-base">4. اختار المعلم اللي بغيتي فـ القرية:</label>
-                
+                <label class="block font-bold text-slate-900 mb-3 text-base">4. اختار المعلم المفضل واطلبو ديريكت:</label>
                 <div id="handymenList" class="space-y-3">
-                    <p class="text-sm text-slate-400 text-center py-2">اختار الحرفة الفوق باش يطلعو ليك المعالمية المتاحين..</p>
+                    <p class="text-sm text-slate-400 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">اختر الحرفة والحي أولاً لعرض المعالمية المتاحين فـ سلا..</p>
                 </div>
             </div>
 
@@ -130,22 +177,26 @@
 
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
-        <p>منصة حرفيين القرية - سلا © 2026</p>
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 font-medium">
+        <p>منصة حرفيين سلا والقرية © 2026 | جميع الحقوق محفوظة</p>
     </footer>
 
+    <!-- JavaScript Logic -->
     <script>
-        // قائمة المعلمين فالقرية (تقدر تزيد ولا تبدل أرقامهم وأسمائهم هنا بسهولة)
+        // تجربة برقم هاتفك للتست التجريبي
+        const TEST_PHONE = "212600000000"; // بدّل هاد الرقم برقمك التجريبي فـ الواتساب
+
+        // قاعدة بيانات المعالمية المتاحين ف سلا
         const handymenData = [
-            { id: 1, name: "المعلم مصطفى", service: "بلومبي", phone: "212600000000", quarter: "بوشوك", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 2, name: "المعلم رشيد", service: "تريسيان", phone: "212600000000", quarter: "الحي المحمدي", rating: "4.8 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 3, name: "المعلم حسن", service: "صباغ", phone: "212600000000", quarter: "حي الواد", rating: "5.0 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 4, name: "المعلم ياسين", service: "إصلاح الأجهزة", phone: "212600000000", quarter: "با حماد", rating: "4.7 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" }
+            { id: 1, name: "المعلم مصطفى", service: "بلومبي (سباك)", phone: TEST_PHONE, quarter: "القرية - بوشوك", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 2, name: "المعلم رشيد", service: "تريسيان (كهربائي)", phone: TEST_PHONE, quarter: "تابريكت", rating: "4.8 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 3, name: "المعلم عبد الرحيم", service: "نجار (أثاث وخشب)", phone: TEST_PHONE, quarter: "القرية - با حماد", rating: "5.0 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 4, name: "المعلم عادل", service: "ألومنيوم وحداد", phone: TEST_PHONE, quarter: "سلا الجديدة", rating: "4.7 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 5, name: "المعلم حسن", service: "صباغ وزليجي", phone: TEST_PHONE, quarter: "القرية - حي الواد", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 6, name: "المعلم ياسين", service: "إصلاح الأجهزة والكلماطور", phone: TEST_PHONE, quarter: "بطانة", rating: "4.8 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" }
         ];
 
-        let selectedHandymanPhone = "";
-
-        // فلترة وعرض المعالمية
+        // فلترة الأصطاوات حسب الخدمة
         function filterHandymen() {
             const selectedService = document.querySelector('input[name="service"]:checked')?.value;
             const container = document.getElementById('handymenList');
@@ -154,22 +205,24 @@
             const filtered = handymenData.filter(h => h.service === selectedService);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-sm text-slate-500 text-center">ما كاين حتى معلم متاح حالياً ف هاد الحرفة.</p>`;
+                container.innerHTML = `<p class="text-sm text-slate-500 text-center py-3">جاري إضافة معلمين جدد لهاد الحرفة فـ سلا..</p>`;
                 return;
             }
 
             filtered.forEach(h => {
                 const card = `
-                    <div class="border border-slate-200 rounded-xl p-3 flex items-center justify-between hover:border-teal-500 transition-all bg-slate-50">
+                    <div class="border-2 border-slate-100 rounded-2xl p-4 flex items-center justify-between hover:border-teal-500 transition-all bg-slate-50/80 shadow-sm">
                         <div class="flex items-center space-x-3 space-x-reverse">
-                            <img src="${h.img}" class="w-10 h-10 rounded-full border">
+                            <img src="${h.img}" class="w-12 h-12 rounded-full border border-slate-200 bg-white p-1">
                             <div>
-                                <h4 class="font-bold text-slate-800 text-sm">${h.name}</h4>
-                                <p class="text-xs text-slate-500">${h.service} - ${h.quarter} | ${h.rating}</p>
+                                <h4 class="font-bold text-slate-900 text-sm md:text-base">${h.name}</h4>
+                                <p class="text-xs text-slate-500">${h.service} • ${h.quarter}</p>
+                                <span class="text-xs font-bold text-amber-500">${h.rating}</span>
                             </div>
                         </div>
-                        <button type="button" onclick="selectHandyman('${h.phone}', '${h.name}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-sm flex items-center space-x-1 space-x-reverse">
-                            <span>اطلبو ف الواتساب</span>
+                        <button type="button" onclick="sendWhatsAppOrder('${h.phone}', '${h.name}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-bold py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center space-x-1.5 space-x-reverse">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            <span>اطلبو دابا</span>
                         </button>
                     </div>
                 `;
@@ -177,63 +230,83 @@
             });
         }
 
-        // إيجاد اللوكيشن عن طريق Google Maps GPS
-        function getLocation() {
-            const status = document.getElementById('locationStatus');
+        // تحديد الموقع الجغرافي الخريطة
+        function detectLocation() {
+            const mapPlaceholder = document.getElementById('mapPlaceholder');
+            const iframe = document.getElementById('googleMapIframe');
+            
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    document.getElementById('locationUrl').value = `https://maps.google.com/?q=${lat},${lng}`;
-                    status.classList.remove('hidden');
+                mapPlaceholder.innerText = "جاري تحديد موقعك بالظبط...";
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const locUrl = `https://maps.google.com/?q=${lat},${lng}`;
+                    document.getElementById('locationUrl').value = locUrl;
+
+                    // إظهار الخريطة
+                    iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+                    iframe.classList.remove('hidden');
+                    mapPlaceholder.classList.add('hidden');
                 }, () => {
-                    alert("تعذر تحديد موقعك تلقائياً، تأكد من تشغيل GPS.");
+                    alert("يرجى تفعيل خيار GPS لتحديد موقعك على الخريطة تلقائياً.");
+                    mapPlaceholder.innerText = "تعذر تحديد الموقع، يرجى تفعيل الـ GPS.";
                 });
             }
         }
 
-        // أوديو بسيط
+        // مسجل الصوت التجريبي
         let isRecording = false;
-        function toggleRecording() {
-            const status = document.getElementById('recordingStatus');
+        let hasAudioRecorded = false;
+
+        function toggleAudioRecord() {
+            const btnText = document.getElementById('recordBtnText');
+            const status = document.getElementById('audioStatus');
+
             if (!isRecording) {
                 isRecording = true;
-                status.innerText = "🔴 جاري التسجيل... (تكلم دابا)";
+                btnText.innerText = "إيقاف التسجيل 🛑";
+                status.innerText = "🔴 جاري التسجيل.. اتكلم دابا";
+                status.className = "text-xs font-bold text-rose-600 animate-pulse";
             } else {
                 isRecording = false;
-                status.innerText = "🟢 تم تسجيل الأوديو بنجاح!";
+                hasAudioRecorded = true;
+                btnText.innerText = "عادة التسجيل 🎙️";
+                status.innerText = "🟢 تم حفظ التسجيل الصوتي!";
+                status.className = "text-xs font-bold text-emerald-600";
             }
         }
 
-        // إرسال الطلب للمعلم المحدد مباشرة
-        function selectHandyman(phone, handymanName) {
+        // إرسال الطلب عبر الواتساب
+        function sendWhatsAppOrder(handymanPhone, handymanName) {
             const service = document.querySelector('input[name="service"]:checked')?.value || "";
             const quarter = document.getElementById('quarter').value;
-            const description = document.getElementById('description').value || "بدون توضيح مكتوب";
+            const description = document.getElementById('description').value || "بدون شرح مكتوب";
             const clientName = document.getElementById('clientName').value;
             const clientPhone = document.getElementById('clientPhone').value;
             const locationUrl = document.getElementById('locationUrl').value;
 
-            if(!clientName || !clientPhone || !quarter) {
-                alert("عافاك كمل الاسم، رقم التلفون، واختار الحي فالأول!");
+            if(!service || !quarter || !clientName || !clientPhone) {
+                alert("عافاك كمل اختيار الحرفة، الحي ف سلا، والاسم ورقم التلفون الأول!");
                 return;
             }
 
-            let msg = `السلام عليكم ${handymanName}، جاني طلب من منصة *حرفيين القرية* 🛠️%0A%0A` +
-                      `👤 *الزبون:* ${clientName}%0A` +
-                      `📞 *التلفون:* ${clientPhone}%0A` +
-                      `🔧 *الخدمة:* ${service}%0A` +
-                      `📍 *الحي:* ${quarter}%0A` +
-                      `📝 *تفاصيل:* ${description}%0A`;
+            let message = `السلام عليكم ${handymanName}، عندي طلب من منصة *حرفيين سلا* 🛠️%0A%0A` +
+                          `👤 *الزبون:* ${clientName}%0A` +
+                          `📞 *التلفون:* ${clientPhone}%0A` +
+                          `🔧 *الحرفة:* ${service}%0A` +
+                          `📍 *المنطقة ف سلا:* ${quarter}%0A` +
+                          `📝 *شرح المشكل:* ${description}%0A`;
 
-            if(locationUrl) {
-                msg += `🗺️ *الموقع ف الخريطة:* ${locationUrl}%0A`;
+            if(hasAudioRecorded) {
+                message += `🎙️ *ملاحظة:* سأرسل لك تسجيلاً صوتياً توضيحياً الآن ف الشات 📲%0A`;
             }
 
-            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-        }
+            if(locationUrl) {
+                message += `🗺️ *رابط الموقع (Google Maps):* ${locationUrl}%0A`;
+            }
 
-        function handleFormSubmit(e) { e.preventDefault(); }
+            window.open(`https://wa.me/${handymanPhone}?text=${message}`, '_blank');
+        }
     </script>
 </body>
 </html>
