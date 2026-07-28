@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حرفيين سلا والقرية | صيانة وإصلاح منزلي</title>
+    <title>حرفيين سلا | صيانة وإصلاح منزلي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -23,10 +23,9 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-black tracking-wide">حرفيين سلا</h1>
-                    <p class="text-xs text-teal-200">القرية - تابريكت - سلا الجديدة</p>
+                    <p class="text-xs text-teal-200">دليل الحرفيين بجميع أحياء ومقاطعات سلا</p>
                 </div>
             </div>
-            <!-- زر تسجيل الحرفيين -->
             <button onclick="alert('صفحة تسجيل المعالمية غنربطوها مع Supabase قريبًا باش يتقيدو أوتوماتيكياً!')" class="bg-amber-400 hover:bg-amber-500 text-teal-950 text-xs px-3 py-2 rounded-xl font-bold transition-all shadow">
                 تسجيل كـ حرفي 🛠️
             </button>
@@ -37,9 +36,9 @@
     <main class="max-w-2xl mx-auto px-4 py-6 w-full flex-grow">
         
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-center mb-6">
-            <h2 class="text-2xl font-black text-slate-900 mb-2">محتاج معلم فـ سلا ولا القرية؟ 🛠️</h2>
+            <h2 class="text-2xl font-black text-slate-900 mb-2">محتاج معلم فـ سلا؟ 🛠️</h2>
             <p class="text-slate-600 text-sm leading-relaxed">
-                اختار الحرفة، حدد موقعك، وتواصل مع المعلمية الأقرب ليك مباشرة عبر الواتساب.
+                اختار الحرفة، الحي ديالك فـ سلا، وتواصل مع المعلمية الأقرب ليك مباشرة عبر الواتساب.
             </p>
         </div>
 
@@ -101,25 +100,51 @@
                 </div>
             </div>
 
-            <!-- 2. تحديد المنطقة ف سلا -->
+            <!-- 2. تحديد منطقة / حي سلا الشامل -->
             <div>
-                <label class="block font-bold text-slate-800 mb-2 text-base">2. فين ساكن فـ سلا؟</label>
-                <select id="quarter" class="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium mb-3" onchange="filterHandymen()" required>
-                    <option value="" disabled selected>اختار المنطقة فـ سلا...</option>
-                    <option value="القرية - بوشوك">القرية - بوشوك</option>
-                    <option value="القرية - الحي المحمدي">القرية - الحي المحمدي</option>
-                    <option value="القرية - با حماد">القرية - با حماد</option>
-                    <option value="القرية - حي الواد">القرية - حي الواد</option>
-                    <option value="تابريكت">تابريكت</option>
-                    <option value="بطانة">بطانة</option>
-                    <option value="سلا الجديدة">سلا الجديدة</option>
-                    <option value="العيايدة">العيايدة</option>
+                <label class="block font-bold text-slate-800 mb-2 text-base">2. فين ساكن فـ سلا؟ (اختر حومتك)</label>
+                <select id="quarter" class="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium mb-3 text-sm" onchange="filterHandymen()" required>
+                    <option value="" disabled selected>اختار الحي أو المنطقة فـ سلا...</option>
+                    
+                    <optgroup label="مقاطعة تابريكت والأحياء المجاورة">
+                        <option value="تابريكت (القديمة/الجديدة)">تابريكت (القديمة / الجديدة)</option>
+                        <option value="حي كريمة">حي كريمة</option>
+                        <option value="حي السلام">حي السلام</option>
+                        <option value="حي الشماعو">حي الشماعو (Chmaou)</option>
+                        <option value="سعيد حجي">سعيد حجي (Saïd Hajji)</option>
+                        <option value="حي الانبعاث">حي الانبعاث</option>
+                        <option value="مولاي إسماعيل">مولاي إسماعيل</option>
+                        <option value="حي الشيخ المفضل">حي الشيخ المفضل</option>
+                        <option value="حي الأمل / الرمل">حي الأمل / حي الرمل</option>
+                        <option value="الدار الحمراء / سوق الصالحين">الدار الحمراء / سوق الصالحين</option>
+                    </optgroup>
+
+                    <optgroup label="مقاطعة باب لمريسة والمركز التاريخي">
+                        <option value="المدينة القديمة سلا">المدينة القديمة (الملاح، باب خباز، القصبة...)</option>
+                        <option value="باب لمريسة / مارينا سلا">باب لمريسة / مارينا سلا</option>
+                        <option value="بطانة">بطانة</option>
+                    </optgroup>
+
+                    <optgroup label="الأحياء الساحلية">
+                        <option value="سيدي موسى">سيدي موسى / العنق</option>
+                        <option value="حي الفايجة / بطل القنيطرة">حي الفايجة / بطل القنيطرة</option>
+                    </optgroup>
+
+                    <optgroup label="أحياء التوسع الشرقي والشمالي (حصين والعيايدة)">
+                        <option value="قرية أولاد موسى">قرية أولاد موسى (Kariat Oulad Moussa)</option>
+                        <option value="سلا الجديدة">سلا الجديدة (Sala Al Jadida)</option>
+                        <option value="حي الرحمة">حي الرحمة</option>
+                        <option value="حي الهدى">حي الهدى</option>
+                        <option value="العيايدة">العيايدة</option>
+                        <option value="حي عامر">حي عامر</option>
+                        <option value="سيدي بوقنادل">سيدي بوقنادل</option>
+                    </optgroup>
                 </select>
 
-                <!-- خريطة Google Maps -->
+                <!-- خريطة Google Maps لتحديد الموقع بالضبط -->
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-700">📍 تحديد موقعك بالـ GPS:</span>
+                        <span class="text-xs font-bold text-slate-700">📍 تحديد عنوانك بدقة متناهية عبر GPS:</span>
                         <button type="button" onclick="detectLocation()" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold py-2 px-3 rounded-xl shadow transition-all flex items-center space-x-1 space-x-reverse">
                             <i class="fa-solid fa-location-crosshairs"></i>
                             <span>حدد موقعي تلقائياً</span>
@@ -162,11 +187,11 @@
                 </div>
             </div>
 
-            <!-- 5. قائمة الأصطاوات القريبين -->
+            <!-- 5. قائمة الأصطاوات المتاحين -->
             <div class="pt-4 border-t border-slate-200">
-                <label class="block font-bold text-slate-900 mb-3 text-base">4. المعالمية المتاحين والقريبين ليك:</label>
+                <label class="block font-bold text-slate-900 mb-3 text-base">4. المعالمية المتاحين فـ سلا:</label>
                 <div id="handymenList" class="space-y-3">
-                    <p class="text-sm text-slate-400 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">اختار الحرفة والحي الفوق باش يطلعو ليك المعالمية القريبين..</p>
+                    <p class="text-sm text-slate-400 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">اختار الحرفة والحي الفوق باش يطلعو ليك المعالمية..</p>
                 </div>
             </div>
 
@@ -175,27 +200,25 @@
     </main>
 
     <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 font-medium">
-        <p>منصة حرفيين سلا والقرية © 2026</p>
+        <p>منصة حرفيين سلا © 2026</p>
     </footer>
 
     <script>
-        // الرقم التجريبي الخاص بك (212706645549)
+        // الرقم التجريبي التجريبي الخاص بك
         const TEST_PHONE = "212706645549";
 
-        // قائمة المعالمية المتاحين تجريبياً
+        // قاعدة بيانات المعالمية التجريبية فـ سلا
         const handymenData = [
-            { id: 1, name: "المعلم مصطفى", service: "بلومبي (سباك)", phone: TEST_PHONE, quarter: "القرية - بوشوك", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 2, name: "المعلم رشيد", service: "تريسيان (كهربائي)", phone: TEST_PHONE, quarter: "تابريكت", rating: "4.8 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 3, name: "المعلم عبد الرحيم", service: "نجار (أثاث وخشب)", phone: TEST_PHONE, quarter: "القرية - با حماد", rating: "5.0 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 4, name: "المعلم عادل", service: "ألومنيوم وحداد", phone: TEST_PHONE, quarter: "سلا الجديدة", rating: "4.7 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 5, name: "المعلم حسن", service: "صباغ وزليجي", phone: TEST_PHONE, quarter: "القرية - حي الواد", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 1, name: "المعلم مصطفى", service: "بلومبي (سباك)", phone: TEST_PHONE, quarter: "قرية أولاد موسى", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 2, name: "المعلم رشيد", service: "تريسيان (كهربائي)", phone: TEST_PHONE, quarter: "تابريكت (القديمة / الجديدة)", rating: "4.8 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 3, name: "المعلم عبد الرحيم", service: "نجار (أثاث وخشب)", phone: TEST_PHONE, quarter: "حي كريمة", rating: "5.0 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 4, name: "المعلم عادل", service: "ألومنيوم وحداد", phone: TEST_PHONE, quarter: "سلا الجديدة (Sala Al Jadida)", rating: "4.7 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+            { id: 5, name: "المعلم حسن", service: "صباغ وزليجي", phone: TEST_PHONE, quarter: "حي الشماعو (Chmaou)", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
             { id: 6, name: "المعلم ياسين", service: "إصلاح الأجهزة والكلماطور", phone: TEST_PHONE, quarter: "بطانة", rating: "4.8 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" }
         ];
 
-        // فلترة المعالمية حسب الحرفة والحي
         function filterHandymen() {
             const selectedService = document.querySelector('input[name="service"]:checked')?.value;
-            const selectedQuarter = document.getElementById('quarter').value;
             const container = document.getElementById('handymenList');
             container.innerHTML = "";
 
@@ -204,11 +227,10 @@
                 return;
             }
 
-            // تصفية حسب الحرفة والحي (إيلا اختار الحي كيجيب القريب، ولا كيعرض المتاحين فـ الحرفة)
             let filtered = handymenData.filter(h => h.service === selectedService);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-sm text-slate-500 text-center py-3">جاري إضافة معلمين جدد ف هاد المنطقة..</p>`;
+                container.innerHTML = `<p class="text-sm text-slate-500 text-center py-3">جاري إضافة معلمين جدد لهاد الحرفة فـ سلا..</p>`;
                 return;
             }
 
@@ -233,13 +255,12 @@
             });
         }
 
-        // GPS Location
         function detectLocation() {
             const mapPlaceholder = document.getElementById('mapPlaceholder');
             const iframe = document.getElementById('googleMapIframe');
             
             if (navigator.geolocation) {
-                mapPlaceholder.innerText = "جاري تحديد موقعك...";
+                mapPlaceholder.innerText = "جاري تحديد موقعك بالظبط...";
                 navigator.geolocation.getCurrentPosition((pos) => {
                     const lat = pos.coords.latitude;
                     const lng = pos.coords.longitude;
@@ -255,7 +276,6 @@
             }
         }
 
-        // Audio Handler
         let isRecording = false;
         let hasAudioRecorded = false;
 
@@ -277,7 +297,6 @@
             }
         }
 
-        // إرسال الطلب عبر الواتساب للرقم التجريبي 0706645549
         function sendWhatsAppOrder(handymanPhone, handymanName) {
             const service = document.querySelector('input[name="service"]:checked')?.value || "";
             const quarter = document.getElementById('quarter').value;
@@ -295,7 +314,7 @@
                           `👤 *الزبون:* ${clientName}%0A` +
                           `📞 *التلفون:* ${clientPhone}%0A` +
                           `🔧 *الحرفة:* ${service}%0A` +
-                          `📍 *المنطقة ف سلا:* ${quarter}%0A` +
+                          `📍 *الحي ف سلا:* ${quarter}%0A` +
                           `📝 *شرح المشكل:* ${description}%0A`;
 
             if(hasAudioRecorded) {
