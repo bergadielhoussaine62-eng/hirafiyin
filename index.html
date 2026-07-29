@@ -299,7 +299,7 @@ footer strong{color:var(--plaster);}
     <div class="wrap">
       <span class="eyebrow">🏘️ حي القرية · سلا</span>
       <h1>كل صانع فحومتك، على بعد كليك وحدة.</h1>
-      <p class="lead">منصة كتجمع بين الصناع اللي كيصلحو ويبنيو كلشي، ونا الناس المحتاجين للخدمة. من الكهربا حتى البناء، لسلا.</p>
+      <p class="lead">منصة كتجمع بين الصناع اللي كيصلحو ويبنيو كلشي، ونا الناس اللي محتاجين الخدمة. من الكهربا حتى البناء، لسلا.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" onclick="goto('request')">🔍 بغيت خدمة دابا</button>
         <button class="btn btn-outline" onclick="goto('join')">🛠️ سجل كصانع</button>
@@ -311,7 +311,7 @@ footer strong{color:var(--plaster);}
   <section class="wrap">
     <div class="section-head">
       <div class="tag">كيفاش كتخدم</div>
-      <h2>ثلاث خطوات وتوصل للحرفي لي محتاج</h2>
+      <h2>3 خطوات وتوصل للحرفي اللي محتاج</h2>
     </div>
     <div class="steps">
       <div class="step-card"><div class="icon">📍</div><h3>حدد شنو محتاج ومنين</h3><p>خدمة، حي، والبلاصة بالضبط فوق الخريطة.</p></div>
@@ -336,7 +336,7 @@ footer strong{color:var(--plaster);}
     <div class="section-head">
       <div class="tag">لائحة الصناع</div>
       <h2>قلب على الصانع المناسب ليك</h2>
-      <p>صافي الصناع المعتمدين لي بانو فهاد اللائحة تأكدو منهم يدويا.</p>
+      <p>غير الصناع المعتمدين هوما لي كيبانو فهاد اللائحة، تأكدنا منهم بيدينا.</p>
     </div>
     <div class="chips" id="browse-chips"></div>
     <div class="grid" id="browse-grid"></div>
@@ -363,7 +363,7 @@ footer strong{color:var(--plaster);}
           <input type="tel" id="req-phone" required placeholder="06XXXXXXXX">
         </div>
         <div class="form-row">
-          <label>شنو الخدمة المحتاجة</label>
+          <label>شنو الخدمة اللي محتاجها</label>
           <div class="category-select-grid" id="req-cat-grid"></div>
         </div>
         <div class="form-row">
@@ -379,7 +379,7 @@ footer strong{color:var(--plaster);}
             <div class="hint">دابا كنخدمو غير فحي القرية، وغادي نزيدو أحياء أخرى ديال سلا قريبا.</div>
           </div>
           <div>
-            <label>تاريخ مفضل (اختياري)</label>
+            <label>التاريخ اللي كيناسبك (ماشي واجب)</label>
             <input type="date" id="req-date">
           </div>
         </div>
@@ -442,7 +442,7 @@ footer strong{color:var(--plaster);}
           <textarea id="join-desc" placeholder="مثلا: كهربائي بـ8 سنين ديال الخبرة، كنخدم فالتأسيس والإصلاح..." required></textarea>
         </div>
         <div class="form-row">
-          <label>تسجيل صوتي (اختياري) — عرف براسك بصوتك</label>
+          <label>تسجيل صوتي (ماشي واجب) — عرف براسك بصوتك</label>
           <div class="audio-controls">
             <button type="button" class="btn btn-zellige" id="rec-btn">🎙️ بدا التسجيل</button>
             <span class="rec-dot" id="rec-dot"></span>
@@ -454,6 +454,18 @@ footer strong{color:var(--plaster);}
           <label>صور من شغلك السابق (حتى 3 تصاور)</label>
           <input type="file" id="join-photos" accept="image/*" multiple>
           <div class="photo-row" id="join-photo-preview"></div>
+        </div>
+        <div class="form-row">
+          <label>صورة سيلفي ديالك دابا (باش نتأكدو بلي راك نتا شخصيا)</label>
+          <input type="file" id="join-selfie" accept="image/*" required>
+          <div class="photo-row" id="join-selfie-preview"></div>
+          <div class="hint">هاد الصورة غادي تبقى خاصة بالأدمن باش يتأكد منك، ماغاديش تبان للزبناء.</div>
+        </div>
+        <div class="form-row">
+          <label>صورة البطاقة الوطنية ديالك (وجه واحد كافي)</label>
+          <input type="file" id="join-cin" accept="image/*" required>
+          <div class="photo-row" id="join-cin-preview"></div>
+          <div class="hint">هاد الصورة غادي تبقى خاصة بالأدمن للتحقق، ماغاديش تبان للزبناء.</div>
         </div>
         <button type="submit" class="btn btn-primary btn-block">سجل ملفي</button>
       </form>
@@ -529,14 +541,14 @@ const db = firebase.firestore();
 const ADMIN_PASSWORD = "qarya2026"; // TODO(HOSN): بدلها بكلمة سر خاصة بيك
 
 const CATEGORIES = [
-  {id:'electricite', label:'كهرباء', icon:'⚡'},
-  {id:'plomberie', label:'سباكة', icon:'🔧'},
-  {id:'menuiserie', label:'نجارة', icon:'🪚'},
-  {id:'construction', label:'بناء', icon:'🧱'},
-  {id:'peinture', label:'صباغة', icon:'🎨'},
-  {id:'climatisation', label:'تبريد وتكييف', icon:'❄️'},
-  {id:'nettoyage', label:'تنظيف', icon:'🧹'},
-  {id:'autre', label:'خدمة أخرى', icon:'✨'}
+  {id:'electricite', label:'الكهربا', icon:'🔌'},
+  {id:'plomberie', label:'البلومبيي', icon:'🚰'},
+  {id:'menuiserie', label:'النجارة', icon:'🪵'},
+  {id:'construction', label:'البناء', icon:'🧱'},
+  {id:'peinture', label:'الصباغة', icon:'🖌️'},
+  {id:'climatisation', label:'الكليما والبراد', icon:'❄️'},
+  {id:'nettoyage', label:'النظافة', icon:'🧹'},
+  {id:'autre', label:'شي حاجة خرى', icon:'🧰'}
 ];
 
 const KARIA_CENTER = [34.02113342285156, -6.765234470367432]; // سلا - القرية
@@ -574,7 +586,7 @@ function renderCategoryGrid(containerId, hiddenInputName){
   el.innerHTML = CATEGORIES.map(c=>`
     <label class="cat-option" data-c="${c.id}">
       <input type="radio" name="${hiddenInputName}" value="${c.id}">
-      <div>${c.icon}</div><div>${c.label}</div>
+      <div style="font-size:26px;margin-bottom:2px;">${c.icon}</div><div>${c.label}</div>
     </label>`).join('');
   el.querySelectorAll('.cat-option').forEach(opt=>{
     opt.addEventListener('click',()=>{
@@ -690,29 +702,29 @@ recClear.addEventListener('click',()=>{
 });
 
 /* ---------------- Photo upload (compressed base64) ---------------- */
+function compressImageFile(file, maxW, quality, callback){
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    img.onload = ()=>{
+      const canvas = document.createElement('canvas');
+      const scale = Math.min(1, maxW/img.width);
+      canvas.width = img.width*scale;
+      canvas.height = img.height*scale;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 let joinPhotos = [];
 document.getElementById('join-photos').addEventListener('change', function(e){
   const files = Array.from(e.target.files).slice(0, 3 - joinPhotos.length);
   files.forEach(file=>{
-    const img = new Image();
-    const reader = new FileReader();
-    reader.onload = ev=>{
-      img.onload = ()=>{
-        const canvas = document.createElement('canvas');
-        const maxW = 500;
-        const scale = Math.min(1, maxW/img.width);
-        canvas.width = img.width*scale;
-        canvas.height = img.height*scale;
-        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-        const compressed = canvas.toDataURL('image/jpeg', 0.6);
-        if(joinPhotos.length<3){
-          joinPhotos.push(compressed);
-          renderPhotoPreview();
-        }
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
+    compressImageFile(file, 500, 0.6, compressed=>{
+      if(joinPhotos.length<3){ joinPhotos.push(compressed); renderPhotoPreview(); }
+    });
   });
   e.target.value='';
 });
@@ -724,6 +736,24 @@ function renderPhotoPreview(){
 }
 function removePhoto(i){ joinPhotos.splice(i,1); renderPhotoPreview(); }
 
+let joinSelfie = null, joinCin = null;
+document.getElementById('join-selfie').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  compressImageFile(file, 500, 0.6, compressed=>{
+    joinSelfie = compressed;
+    document.getElementById('join-selfie-preview').innerHTML = `<div class="photo-thumb"><img src="${compressed}"></div>`;
+  });
+});
+document.getElementById('join-cin').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  compressImageFile(file, 700, 0.6, compressed=>{
+    joinCin = compressed;
+    document.getElementById('join-cin-preview').innerHTML = `<div class="photo-thumb"><img src="${compressed}"></div>`;
+  });
+});
+
 /* ---------------- Forms submit ---------------- */
 document.getElementById('join-form').addEventListener('submit', async function(e){
   e.preventDefault();
@@ -731,6 +761,7 @@ document.getElementById('join-form').addEventListener('submit', async function(e
   const msg = document.getElementById('join-msg');
   if(!cat){ msg.className='msg-banner err'; msg.textContent='خاصك تختار نوع الخدمة.'; return; }
   if(!joinLatLng){ msg.className='msg-banner err'; msg.textContent='خاصك تحدد البلاصة فوق الخريطة.'; return; }
+  if(!joinSelfie || !joinCin){ msg.className='msg-banner err'; msg.textContent='خاصك تزيد صورة السيلفي وصورة البطاقة الوطنية، وتسنى شوية حتى يتحملو.'; return; }
   const btn = e.target.querySelector('button[type=submit]');
   btn.disabled = true; btn.textContent='كنسجلو...';
   try{
@@ -743,6 +774,8 @@ document.getElementById('join-form').addEventListener('submit', async function(e
       description: document.getElementById('join-desc').value,
       audio: audioBase64 || null,
       photos: joinPhotos,
+      selfie: joinSelfie,
+      cinPhoto: joinCin,
       status: 'pending',
       rating: 0, reviewsCount: 0,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -751,6 +784,9 @@ document.getElementById('join-form').addEventListener('submit', async function(e
     msg.textContent='توصل طلبك! غادي نراجعو الملف ديالك ونفعلوه فأقرب وقت. 🎉';
     e.target.reset();
     joinPhotos=[]; renderPhotoPreview();
+    joinSelfie=null; joinCin=null;
+    document.getElementById('join-selfie-preview').innerHTML='';
+    document.getElementById('join-cin-preview').innerHTML='';
     audioBase64=null; recPlayback.style.display='none'; recClear.style.display='none';
     document.querySelectorAll('#join-cat-grid .cat-option').forEach(o=>o.classList.remove('selected'));
   }catch(err){
@@ -963,16 +999,24 @@ function renderAdminStats(craftsmen){
     <div class="stat-card"><div class="num">${pending}</div><div class="lbl">فالانتظار</div></div>
   `;
 }
+function viewImage(url){
+  document.getElementById('profile-content').innerHTML = `<img src="${url}" style="width:100%;border-radius:10px;">`;
+  document.getElementById('profile-modal').classList.add('open');
+}
 function renderAdminCraftsmen(list){
   const el = document.getElementById('admin-craftsmen');
   el.innerHTML = `<table class="admin-table"><thead><tr>
-    <th>الاسم</th><th>الخدمة</th><th>الهاتف</th><th>الحالة</th><th>تقييم</th><th>إجراءات</th>
+    <th>الاسم</th><th>الخدمة</th><th>الهاتف</th><th>التحقق</th><th>الحالة</th><th>تقييم</th><th>إجراءات</th>
   </tr></thead><tbody>
   ${list.map(c=>`
     <tr>
       <td>${c.name}</td>
       <td>${catLabel(c.category)}</td>
       <td class="mono">${c.phone}</td>
+      <td>
+        ${c.selfie ? `<img src="${c.selfie}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;cursor:pointer;margin-left:4px;" onclick="viewImage('${c.selfie}')" title="السيلفي">` : ''}
+        ${c.cinPhoto ? `<img src="${c.cinPhoto}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;cursor:pointer;" onclick="viewImage('${c.cinPhoto}')" title="البطاقة الوطنية">` : ''}
+      </td>
       <td><span class="badge ${c.status}">${c.status==='approved'?'معتمد':'فالانتظار'}</span></td>
       <td>${c.rating? c.rating.toFixed(1):'—'} (${c.reviewsCount||0})</td>
       <td>
