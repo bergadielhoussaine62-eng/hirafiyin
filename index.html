@@ -3,334 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حرفيين سلا | صيانة وإصلاح منزلي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>حرفيين سلا - تسجيل الحرفيين</title>
+    <!-- مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        body { font-family: 'Tajawal', sans-serif; }
-        .service-card:hover { transform: translateY(-3px); }
+        body { font-family: system-ui, sans-serif; padding: 20px; background-color: #f4f4f9; direction: rtl; }
+        .form-container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, button { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #218838; }
+        #message { margin-top: 15px; text-align: center; font-weight: bold; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-100 to-teal-50 text-slate-800 min-h-screen flex flex-col justify-between">
+<body>
 
-    <!-- Header -->
-    <header class="bg-teal-800 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3 space-x-reverse">
-                <div class="bg-amber-400 p-2.5 rounded-2xl text-teal-950 shadow">
-                    <i class="fa-solid fa-screwdriver-wrench text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-black tracking-wide">حرفيين سلا</h1>
-                    <p class="text-xs text-teal-200">دليل الحرفيين بجميع أحياء ومقاطعات سلا</p>
-                </div>
-            </div>
-            <button onclick="alert('صفحة تسجيل المعالمية غنربطوها مع Supabase قريبًا باش يتقيدو أوتوماتيكياً!')" class="bg-amber-400 hover:bg-amber-500 text-teal-950 text-xs px-3 py-2 rounded-xl font-bold transition-all shadow">
-                تسجيل كـ حرفي 🛠️
-            </button>
+<div class="form-container">
+    <h2>تسجيل حرفي جديد 🛠️</h2>
+    <form id="handymanForm">
+        <div class="form-group">
+            <label for="name">السمية الكاملة:</label>
+            <input type="text" id="name" required placeholder="مثال: محمد السلاوي">
         </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-2xl mx-auto px-4 py-6 w-full flex-grow">
         
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-center mb-6">
-            <h2 class="text-2xl font-black text-slate-900 mb-2">محتاج معلم فـ سلا؟ 🛠️</h2>
-            <p class="text-slate-600 text-sm leading-relaxed">
-                اختار الحرفة، الحي ديالك فـ سلا، وتواصل مع المعلمية الأقرب ليك مباشرة عبر الواتساب.
-            </p>
+        <div class="form-group">
+            <label for="phone">رقم الهاتف:</label>
+            <input type="tel" id="phone" required placeholder="06XXXXXXXX">
         </div>
 
-        <form id="mainForm" class="bg-white p-6 md:p-8 rounded-3xl shadow-md border border-slate-200/80 space-y-6">
-            
-            <!-- 1. اختيار الحرفة مع اللوجوات التوضيحية المباشرة -->
-            <div>
-                <label class="block font-bold text-slate-800 mb-3 text-base">1. شنو الحرفة اللي محتاج؟</label>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3.5">
-                    
-                    <!-- البلومبي: روبيني ماء -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="service" value="بلومبي (سباك)" class="peer hidden" onchange="filterHandymen()" required>
-                        <div class="service-card p-4 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-faucet-drip text-3xl text-sky-600 mb-2"></i>
-                            <span class="text-xs md:text-sm">بلومبي (سباك)</span>
-                        </div>
-                    </label>
+        <div class="form-group">
+            <label for="service">الحرفة / الخدمة:</label>
+            <select id="service" required>
+                <option value="">اختار الحرفة...</option>
+                <option value="plumber">بلومبي (Plombier)</option>
+                <option value="electrician">ينري (Électricien)</option>
+                <option value="painter">صباغ (Peintre)</option>
+                <option value="carpenter">نجار (Menuisier)</option>
+            </select>
+        </div>
 
-                    <!-- التريسيان: بولة الضوء -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="service" value="تريسيان (كهربائي)" class="peer hidden" onchange="filterHandymen()">
-                        <div class="service-card p-4 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-lightbulb text-3xl text-amber-500 mb-2"></i>
-                            <span class="text-xs md:text-sm">تريسيان (كهربائي)</span>
-                        </div>
-                    </label>
+        <div class="form-group">
+            <label for="quarter">الحي فـ سلا:</label>
+            <input type="text" id="quarter" required placeholder="مثال: تابريكت، بطانة، تابحيرت...">
+        </div>
 
-                    <!-- النجار: الخشب والمنشار -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="service" value="نجار (أثاث وخشب)" class="peer hidden" onchange="filterHandymen()">
-                        <div class="service-card p-4 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-ruler-combined text-3xl text-amber-800 mb-2"></i>
-                            <span class="text-xs md:text-sm">نجار (أثاث/خشب)</span>
-                        </div>
-                    </label>
+        <button type="submit" id="submitBtn">تسجيل الحرفي</button>
+    </form>
 
-                    <!-- الألومنيوم والحدادة: مطرقة ونافذة -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="service" value="ألومنيوم وحداد" class="peer hidden" onchange="filterHandymen()">
-                        <div class="service-card p-4 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-hammer text-3xl text-slate-600 mb-2"></i>
-                            <span class="text-xs md:text-sm">ألومنيوم / حداد</span>
-                        </div>
-                    </label>
+    <div id="message"></div>
+</div>
 
-                    <!-- الصباغ: الفرشاة والرولة -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="service" value="صباغ وزليجي" class="peer hidden" onchange="filterHandymen()">
-                        <div class="service-card p-4 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-paint-roller text-3xl text-emerald-600 mb-2"></i>
-                            <span class="text-xs md:text-sm">صباغ / زليجي</span>
-                        </div>
-                    </label>
+<script>
+    // https://bdputjojkmipawxtoqkd.supabase.co/rest/v1/
+    //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkcHV0am9qa21pcGF3eHRvcWtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODg4NzUsImV4cCI6MjEwMDc2NDg3NX0.jafLSwZWQYDzc5BShqlBif7nUTkBxScvEaHrgAQnIqg
+    const SUPABASE_URL = "حط_هنا_PROJECT_URL_ديالك"; 
+    const SUPABASE_KEY = "حط_هنا_ANON_KEY_ديالك"; 
 
-                    <!-- الأجهزة والكلماطور: التبريد والتكييف -->
-                    <label class="cursor-pointer">
-                        <input type="radio" name="service" value="إصلاح الأجهزة والكلماطور" class="peer hidden" onchange="filterHandymen()">
-                        <div class="service-card p-4 text-center rounded-2xl border-2 border-slate-100 bg-slate-50 peer-checked:border-teal-600 peer-checked:bg-teal-50 peer-checked:text-teal-800 font-bold transition-all flex flex-col items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-snowflake text-3xl text-blue-500 mb-2"></i>
-                            <span class="text-xs md:text-sm">أجهزة / كلماطور</span>
-                        </div>
-                    </label>
+    // تهيئة الاتصال بـ Supabase
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-                </div>
-            </div>
+    // التعامل مع الفورم عند الضغط على الزر
+    document.getElementById('handymanForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            <!-- 2. اختيار منطقة سلا -->
-            <div>
-                <label class="block font-bold text-slate-800 mb-2 text-base">2. فين ساكن فـ سلا؟ (اختر حومتك)</label>
-                <select id="quarter" class="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium mb-3 text-sm" onchange="filterHandymen()" required>
-                    <option value="" disabled selected>اختار الحي أو المنطقة فـ سلا...</option>
-                    
-                    <optgroup label="مقاطعة تابريكت والأحياء المجاورة">
-                        <option value="تابريكت (القديمة/الجديدة)">تابريكت (القديمة / الجديدة)</option>
-                        <option value="حي كريمة">حي كريمة</option>
-                        <option value="حي السلام">حي السلام</option>
-                        <option value="حي الشماعو">حي الشماعو (Chmaou)</option>
-                        <option value="سعيد حجي">سعيد حجي (Saïd Hajji)</option>
-                        <option value="حي الانبعاث">حي الانبعاث</option>
-                        <option value="مولاي إسماعيل">مولاي إسماعيل</option>
-                        <option value="حي الشيخ المفضل">حي الشيخ المفضل</option>
-                        <option value="حي الأمل / الرمل">حي الأمل / حي الرمل</option>
-                        <option value="الدار الحمراء / سوق الصالحين">الدار الحمراء / سوق الصالحين</option>
-                    </optgroup>
+        const submitBtn = document.getElementById('submitBtn');
+        const messageDiv = document.getElementById('message');
 
-                    <optgroup label="مقاطعة باب لمريسة والمركز التاريخي">
-                        <option value="المدينة القديمة سلا">المدينة القديمة (الملاح، باب خباز، القصبة...)</option>
-                        <option value="باب لمريسة / مارينا سلا">باب لمريسة / مارينا سلا</option>
-                        <option value="بطانة">بطانة</option>
-                    </optgroup>
+        // التغيير لحالة التحميل
+        submitBtn.disabled = true;
+        submitBtn.innerText = "جاري التسجيل...";
+        messageDiv.innerText = "";
 
-                    <optgroup label="الأحياء الساحلية">
-                        <option value="سيدي موسى">سيدي موسى / العنق</option>
-                        <option value="حي الفايجة / بطل القنيطرة">حي الفايجة / بطل القنيطرة</option>
-                    </optgroup>
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const service = document.getElementById('service').value;
+        const quarter = document.getElementById('quarter').value;
 
-                    <optgroup label="أحياء التوسع الشرقي والشمالي (حصين والعيايدة)">
-                        <option value="قرية أولاد موسى">قرية أولاد موسى (Kariat Oulad Moussa)</option>
-                        <option value="سلا الجديدة">سلا الجديدة (Sala Al Jadida)</option>
-                        <option value="حي الرحمة">حي الرحمة</option>
-                        <option value="حي الهدى">حي الهدى</option>
-                        <option value="العيايدة">العيايدة</option>
-                        <option value="حي عامر">حي عامر</option>
-                        <option value="سيدي بوقنادل">سيدي بوقنادل</option>
-                    </optgroup>
-                </select>
+        // إرسال البيانات لـ Supabase
+        const { data, error } = await _supabase
+            .from('handymen')
+            .insert([
+                { name: name, phone: phone, service: service, quarter: quarter }
+            ]);
 
-                <!-- خريطة Google Maps -->
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-700">📍 تحديد عنوانك بدقة متناهية عبر GPS:</span>
-                        <button type="button" onclick="detectLocation()" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold py-2 px-3 rounded-xl shadow transition-all flex items-center space-x-1 space-x-reverse">
-                            <i class="fa-solid fa-location-crosshairs"></i>
-                            <span>حدد موقعي تلقائياً</span>
-                        </button>
-                    </div>
-
-                    <div id="mapContainer" class="w-full h-36 rounded-xl overflow-hidden border border-slate-300 relative bg-slate-200 flex items-center justify-center">
-                        <iframe id="googleMapIframe" class="w-full h-full hidden" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                        <span id="mapPlaceholder" class="text-xs text-slate-500 font-medium text-center p-2">اضغط على "حدد موقعي تلقائياً" لتظهر خريطتك هنا 🗺️</span>
-                    </div>
-                    <input type="hidden" id="locationUrl">
-                </div>
-            </div>
-
-            <!-- 3. توضيح المشكل + أوديو -->
-            <div>
-                <label class="block font-bold text-slate-800 mb-2 text-base">3. شرح المشكل (كتابة أو أوديو):</label>
-                <textarea id="description" rows="2" placeholder="اكتب هنا شنو عندك فالدار..." class="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm mb-3"></textarea>
-                
-                <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2 space-x-reverse">
-                        <button type="button" id="recordBtn" onclick="toggleAudioRecord()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow transition-all flex items-center space-x-1.5 space-x-reverse">
-                            <i class="fa-solid fa-microphone"></i>
-                            <span id="recordBtnText">تسجيل أوديو (Vocal)</span>
-                        </button>
-                        <span id="audioStatus" class="text-xs font-bold text-slate-600">اختياري</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. معلومات الزبون -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1 text-sm">الاسم الكامل:</label>
-                    <input type="text" id="clientName" placeholder="اسمك الكريم" class="w-full p-3 rounded-xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm" required>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1 text-sm">رقم الهاتف:</label>
-                    <input type="tel" id="clientPhone" placeholder="06XXXXXXXX" class="w-full p-3 rounded-xl border-2 border-slate-200 focus:outline-none focus:border-teal-600 bg-slate-50 font-medium text-sm" required>
-                </div>
-            </div>
-
-            <!-- 5. قائمة الأصطاوات المتاحين -->
-            <div class="pt-4 border-t border-slate-200">
-                <label class="block font-bold text-slate-900 mb-3 text-base">4. المعالمية المتاحين فـ سلا:</label>
-                <div id="handymenList" class="space-y-3">
-                    <p class="text-sm text-slate-400 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">اختار الحرفة والحي الفوق باش يطلعو ليك المعالمية..</p>
-                </div>
-            </div>
-
-        </form>
-
-    </main>
-
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 font-medium">
-        <p>منصة حرفيين سلا © 2026</p>
-    </footer>
-
-    <script>
-        const TEST_PHONE = "212706645549";
-
-        const handymenData = [
-            { id: 1, name: "المعلم مصطفى", service: "بلومبي (سباك)", phone: TEST_PHONE, quarter: "قرية أولاد موسى", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 2, name: "المعلم رشيد", service: "تريسيان (كهربائي)", phone: TEST_PHONE, quarter: "تابريكت (القديمة / الجديدة)", rating: "4.8 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 3, name: "المعلم عبد الرحيم", service: "نجار (أثاث وخشب)", phone: TEST_PHONE, quarter: "حي كريمة", rating: "5.0 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 4, name: "المعلم عادل", service: "ألومنيوم وحداد", phone: TEST_PHONE, quarter: "سلا الجديدة (Sala Al Jadida)", rating: "4.7 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 5, name: "المعلم حسن", service: "صباغ وزليجي", phone: TEST_PHONE, quarter: "حي الشماعو (Chmaou)", rating: "4.9 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-            { id: 6, name: "المعلم ياسين", service: "إصلاح الأجهزة والكلماطور", phone: TEST_PHONE, quarter: "بطانة", rating: "4.8 ⭐", img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" }
-        ];
-
-        function filterHandymen() {
-            const selectedService = document.querySelector('input[name="service"]:checked')?.value;
-            const container = document.getElementById('handymenList');
-            container.innerHTML = "";
-
-            if(!selectedService) {
-                container.innerHTML = `<p class="text-sm text-slate-400 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">اختر الحرفة أولاً..</p>`;
-                return;
-            }
-
-            let filtered = handymenData.filter(h => h.service === selectedService);
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-sm text-slate-500 text-center py-3">جاري إضافة معلمين جدد لهاد الحرفة فـ سلا..</p>`;
-                return;
-            }
-
-            filtered.forEach(h => {
-                const card = `
-                    <div class="border-2 border-slate-100 rounded-2xl p-4 flex items-center justify-between hover:border-teal-500 transition-all bg-slate-50/80 shadow-sm">
-                        <div class="flex items-center space-x-3 space-x-reverse">
-                            <img src="${h.img}" class="w-12 h-12 rounded-full border border-slate-200 bg-white p-1">
-                            <div>
-                                <h4 class="font-bold text-slate-900 text-sm md:text-base">${h.name}</h4>
-                                <p class="text-xs text-slate-500">${h.service} • <span class="text-teal-700 font-bold">${h.quarter}</span></p>
-                                <span class="text-xs font-bold text-amber-500">${h.rating}</span>
-                            </div>
-                        </div>
-                        <button type="button" onclick="sendWhatsAppOrder('${h.phone}', '${h.name}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-bold py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center space-x-1.5 space-x-reverse">
-                            <i class="fa-brands fa-whatsapp text-lg"></i>
-                            <span>اطلبو ف الواتساب</span>
-                        </button>
-                    </div>
-                `;
-                container.innerHTML += card;
-            });
+        if (error) {
+            console.error('Error:', error);
+            messageDiv.style.color = 'red';
+            messageDiv.innerText = "وقعات شي حاجة غلط! حاول عاود وتأكد من الربط.";
+        } else {
+            messageDiv.style.color = 'green';
+            messageDiv.innerText = "تم التسجيل بنجاح! تبارك الله عليك 🚀";
+            document.getElementById('handymanForm').reset();
         }
 
-        function detectLocation() {
-            const mapPlaceholder = document.getElementById('mapPlaceholder');
-            const iframe = document.getElementById('googleMapIframe');
-            
-            if (navigator.geolocation) {
-                mapPlaceholder.innerText = "جاري تحديد موقعك بالظبط...";
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    const locUrl = `https://maps.google.com/?q=${lat},${lng}`;
-                    document.getElementById('locationUrl').value = locUrl;
+        submitBtn.disabled = false;
+        submitBtn.innerText = "تسجيل الحرفي";
+    });
+</script>
 
-                    iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
-                    iframe.classList.remove('hidden');
-                    mapPlaceholder.classList.add('hidden');
-                }, () => {
-                    alert("يرجى تفعيل خيار GPS لتحديد موقعك تلقائياً.");
-                });
-            }
-        }
-
-        let isRecording = false;
-        let hasAudioRecorded = false;
-
-        function toggleAudioRecord() {
-            const btnText = document.getElementById('recordBtnText');
-            const status = document.getElementById('audioStatus');
-
-            if (!isRecording) {
-                isRecording = true;
-                btnText.innerText = "إيقاف التسجيل 🛑";
-                status.innerText = "🔴 جاري التسجيل..";
-                status.className = "text-xs font-bold text-rose-600 animate-pulse";
-            } else {
-                isRecording = false;
-                hasAudioRecorded = true;
-                btnText.innerText = "عادة التسجيل 🎙️";
-                status.innerText = "🟢 تم حفظ التسجيل!";
-                status.className = "text-xs font-bold text-emerald-600";
-            }
-        }
-
-        function sendWhatsAppOrder(handymanPhone, handymanName) {
-            const service = document.querySelector('input[name="service"]:checked')?.value || "";
-            const quarter = document.getElementById('quarter').value;
-            const description = document.getElementById('description').value || "بدون شرح مكتوب";
-            const clientName = document.getElementById('clientName').value;
-            const clientPhone = document.getElementById('clientPhone').value;
-            const locationUrl = document.getElementById('locationUrl').value;
-
-            if(!service || !quarter || !clientName || !clientPhone) {
-                alert("عافاك كمل اختيار الحرفة، الحي ف سلا، والاسم ورقم التلفون الأول!");
-                return;
-            }
-
-            let message = `السلام عليكم ${handymanName}، عندي طلب من منصة *حرفيين سلا* 🛠️%0A%0A` +
-                          `👤 *الزبون:* ${clientName}%0A` +
-                          `📞 *التلفون:* ${clientPhone}%0A` +
-                          `🔧 *الحرفة:* ${service}%0A` +
-                          `📍 *الحي ف سلا:* ${quarter}%0A` +
-                          `📝 *شرح المشكل:* ${description}%0A`;
-
-            if(hasAudioRecorded) {
-                message += `🎙️ *ملاحظة:* صيفطت ليك أوديو توضيحي فـ الشات 📲%0A`;
-            }
-
-            if(locationUrl) {
-                message += `🗺️ *رابط الموقع (Google Maps):* ${locationUrl}%0A`;
-            }
-
-            window.open(`https://wa.me/${handymanPhone}?text=${message}`, '_blank');
-        }
-    </script>
 </body>
 </html>
