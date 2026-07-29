@@ -1,109 +1,943 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حرفيين سلا - تسجيل الحرفيين</title>
-    <!-- مكتبة Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: system-ui, sans-serif; padding: 20px; background-color: #f4f4f9; direction: rtl; }
-        .form-container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select, button { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-        button { background-color: #28a745; color: white; border: none; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #218838; }
-        #message { margin-top: 15px; text-align: center; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>القرية | حرفيين وصناع فسلا</title>
+<meta name="description" content="منصة كتجمع بين الناس اللي كيصلحو وكيبنيو وناس اللي محتاجين الخدمة، فحي القرية سلا.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+:root{
+  --clay:#C97D3C;
+  --clay-dark:#A85F27;
+  --charcoal:#201B16;
+  --charcoal-soft:#332A21;
+  --zellige:#1F6F6B;
+  --zellige-dark:#154E4B;
+  --plaster:#F4EEE4;
+  --sand:#E9DCC7;
+  --rust:#A83B2E;
+  --ink:#2A2119;
+  --line: rgba(32,27,22,0.12);
+  --radius: 14px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:'Cairo', sans-serif;
+  background:var(--plaster);
+  color:var(--ink);
+  line-height:1.6;
+}
+.mono{font-family:'JetBrains Mono', monospace;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+img{max-width:100%;display:block;}
+
+/* ---------- Layout shell ---------- */
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px;}
+header.site{
+  position:sticky;top:0;z-index:40;
+  background:var(--charcoal);
+  border-bottom:3px solid var(--clay);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1120px;margin:0 auto;}
+.brand{display:flex;align-items:center;gap:10px;color:var(--plaster);font-weight:900;font-size:22px;}
+.brand .seal{
+  width:34px;height:34px;border-radius:50%;
+  border:2px dashed var(--clay);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--clay);
+  flex-shrink:0;
+}
+.navlinks{display:flex;gap:6px;flex-wrap:wrap;}
+.navlinks button{
+  background:transparent;border:1px solid transparent;color:var(--plaster);
+  padding:8px 14px;border-radius:999px;font-weight:600;font-size:14.5px;
+  transition:.15s;
+}
+.navlinks button:hover{border-color:var(--clay);}
+.navlinks button.active{background:var(--clay);color:var(--charcoal);}
+
+/* ---------- Views ---------- */
+.view{display:none;animation:fadeIn .35s ease;}
+.view.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* ---------- Hero ---------- */
+.hero{
+  background:
+    radial-gradient(circle at 85% 20%, rgba(201,125,60,0.25), transparent 45%),
+    var(--charcoal);
+  color:var(--plaster);
+  padding:70px 0 60px;
+  position:relative;
+  overflow:hidden;
+  border-bottom:1px solid var(--line);
+}
+.hero .wrap{position:relative;z-index:2;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--clay);color:var(--clay);
+  padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700;
+  margin-bottom:18px;
+}
+h1{font-size:42px;font-weight:900;margin:0 0 16px;max-width:680px;line-height:1.25;}
+.hero p.lead{font-size:17px;max-width:560px;color:#D9CFC1;margin:0 0 30px;}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 24px;border-radius:10px;font-weight:700;font-size:15px;
+  border:2px solid transparent;transition:.15s;
+}
+.btn-primary{background:var(--clay);color:var(--charcoal);}
+.btn-primary:hover{background:var(--clay-dark);}
+.btn-outline{border-color:var(--plaster);color:var(--plaster);}
+.btn-outline:hover{background:var(--plaster);color:var(--charcoal);}
+.btn-zellige{background:var(--zellige);color:#fff;}
+.btn-zellige:hover{background:var(--zellige-dark);}
+.btn-block{width:100%;justify-content:center;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+
+.stamp-decor{
+  position:absolute;left:-40px;bottom:-40px;
+  width:220px;height:220px;border-radius:50%;
+  border:2px dashed rgba(201,125,60,0.35);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1;
+}
+.stamp-decor:before{
+  content:"";width:170px;height:170px;border-radius:50%;
+  border:1px solid rgba(201,125,60,0.25);
+}
+
+/* ---------- Sections ---------- */
+section{padding:56px 0;}
+.section-head{margin-bottom:30px;}
+.section-head .tag{color:var(--zellige);font-weight:800;font-size:13px;letter-spacing:.5px;}
+.section-head h2{font-size:28px;margin:6px 0 8px;font-weight:900;}
+.section-head p{color:#6b5f52;margin:0;max-width:560px;}
+
+/* how it works */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.step-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;
+}
+.step-card .icon{font-size:26px;margin-bottom:12px;}
+.step-card h3{margin:0 0 8px;font-size:17px;}
+.step-card p{margin:0;color:#6b5f52;font-size:14.5px;}
+
+/* category chips */
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 0;}
+.chip{
+  background:#fff;border:1.5px solid var(--line);border-radius:999px;
+  padding:9px 16px;font-weight:700;font-size:14px;color:var(--ink);
+  display:flex;align-items:center;gap:7px;transition:.15s;
+}
+.chip:hover{border-color:var(--clay);}
+.chip.active{background:var(--charcoal);color:var(--plaster);border-color:var(--charcoal);}
+
+/* craftsmen grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;margin-top:24px;}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;transition:.2s;cursor:pointer;
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(32,27,22,0.1);}
+.card-photo{
+  height:150px;background:var(--sand);
+  display:flex;align-items:center;justify-content:center;font-size:40px;
+  position:relative;overflow:hidden;
+}
+.card-photo img{width:100%;height:100%;object-fit:cover;}
+.verified-badge{
+  position:absolute;top:10px;left:10px;
+  background:var(--zellige);color:#fff;font-size:11.5px;font-weight:800;
+  padding:4px 10px;border-radius:999px;display:flex;align-items:center;gap:4px;
+}
+.card-body{padding:16px;}
+.card-body h3{margin:0 0 4px;font-size:17px;}
+.card-meta{display:flex;align-items:center;gap:10px;color:#6b5f52;font-size:13.5px;margin-bottom:8px;}
+.stars{color:var(--clay);font-size:13.5px;font-weight:700;}
+.card-desc{font-size:13.5px;color:#6b5f52;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.empty-state{
+  text-align:center;padding:50px 20px;color:#8a7c6b;
+  border:1.5px dashed var(--line);border-radius:var(--radius);background:#fff;
+}
+
+/* forms */
+.form-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:28px;max-width:640px;
+}
+.form-row{margin-bottom:18px;}
+.form-row label{display:block;font-weight:700;font-size:14.5px;margin-bottom:7px;}
+.form-row .hint{font-size:12.5px;color:#8a7c6b;font-weight:400;margin-top:5px;}
+input[type=text],input[type=tel],input[type=date],input[type=time],textarea,select{
+  width:100%;padding:12px 14px;border-radius:9px;border:1.5px solid var(--line);
+  font-family:inherit;font-size:14.5px;background:#FBF8F3;
+}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--clay);outline-offset:1px;}
+textarea{min-height:90px;resize:vertical;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+#map-picker, #map-picker-req{height:260px;border-radius:10px;border:1.5px solid var(--line);margin-top:6px;}
+.map-hint{font-size:12.5px;color:var(--zellige);font-weight:700;margin-top:6px;}
+
+.audio-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.rec-dot{width:9px;height:9px;border-radius:50%;background:var(--rust);display:none;}
+.rec-dot.on{display:inline-block;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+.photo-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+.photo-thumb{width:70px;height:70px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--line);}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;}
+.photo-thumb button{position:absolute;top:2px;left:2px;background:var(--rust);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:1;}
+
+.category-select-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.cat-option{
+  border:1.5px solid var(--line);border-radius:10px;padding:10px 8px;text-align:center;
+  font-size:13px;font-weight:700;background:#FBF8F3;
+}
+.cat-option input{display:none;}
+.cat-option.selected{border-color:var(--zellige);background:rgba(31,111,107,0.1);color:var(--zellige-dark);}
+
+.msg-banner{
+  padding:12px 16px;border-radius:10px;font-size:14px;font-weight:700;margin-bottom:16px;display:none;
+}
+.msg-banner.ok{background:rgba(31,111,107,0.12);color:var(--zellige-dark);display:block;}
+.msg-banner.err{background:rgba(168,59,46,0.12);color:var(--rust);display:block;}
+
+/* modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(32,27,22,0.55);
+  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:#fff;border-radius:16px;max-width:560px;width:100%;
+  max-height:88vh;overflow-y:auto;padding:0;
+}
+.modal-close{position:sticky;top:0;display:flex;justify-content:flex-end;padding:14px 14px 0;background:#fff;z-index:2;}
+.modal-close button{background:var(--charcoal);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:15px;}
+.modal-inner{padding:6px 26px 26px;}
+.modal-inner h2{margin:4px 0 4px;font-size:22px;}
+.review-item{border-top:1px solid var(--line);padding:12px 0;}
+.review-item .rstars{color:var(--clay);font-weight:800;font-size:13.5px;}
+.review-item p{margin:6px 0 0;font-size:14px;color:#5b4f42;}
+
+/* admin */
+.admin-tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+.admin-tabs button{
+  background:#fff;border:1.5px solid var(--line);padding:8px 16px;border-radius:999px;font-weight:700;font-size:13.5px;
+}
+.admin-tabs button.active{background:var(--charcoal);color:#fff;border-color:var(--charcoal);}
+table.admin-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;font-size:13.5px;}
+table.admin-table th{background:var(--charcoal);color:#fff;text-align:right;padding:10px 12px;font-size:12.5px;}
+table.admin-table td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle;}
+.badge{padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:800;}
+.badge.pending{background:#F5E3C6;color:#7A5310;}
+.badge.approved{background:rgba(31,111,107,0.15);color:var(--zellige-dark);}
+.badge.completed{background:rgba(31,111,107,0.15);color:var(--zellige-dark);}
+.mini-btn{border:none;padding:6px 11px;border-radius:7px;font-size:12px;font-weight:700;margin-left:4px;}
+.mini-btn.approve{background:var(--zellige);color:#fff;}
+.mini-btn.delete{background:var(--rust);color:#fff;}
+.mini-btn.info{background:var(--sand);color:var(--ink);}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
+.stat-card .num{font-size:28px;font-weight:900;color:var(--clay-dark);}
+.stat-card .lbl{font-size:12.5px;color:#8a7c6b;font-weight:700;}
+
+footer{background:var(--charcoal);color:#B8AC9C;padding:34px 0;margin-top:40px;text-align:center;font-size:13.5px;}
+footer strong{color:var(--plaster);}
+
+@media(max-width:720px){
+  h1{font-size:30px;}
+  .steps{grid-template-columns:1fr;}
+  .two-col{grid-template-columns:1fr;}
+  .nav{flex-direction:column;gap:10px;align-items:flex-start;}
+}
+</style>
 </head>
 <body>
 
-<div class="form-container">
-    <h2>تسجيل حرفي جديد 🛠️</h2>
-    <form id="handymanForm">
-        <div class="form-group">
-            <label for="name">السمية الكاملة:</label>
-            <input type="text" id="name" required placeholder="مثال: محمد السلاوي">
-        </div>
-        
-        <div class="form-group">
-            <label for="phone">رقم الهاتف:</label>
-            <input type="tel" id="phone" required placeholder="06XXXXXXXX">
-        </div>
+<header class="site">
+  <div class="nav">
+    <div class="brand"><span class="seal">ق</span> القرية</div>
+    <div class="navlinks">
+      <button data-view="home" class="active">الرئيسية</button>
+      <button data-view="browse">الصناع</button>
+      <button data-view="request">بغيت خدمة</button>
+      <button data-view="join">أنا صانع</button>
+      <button data-view="admin">لوحة التحكم</button>
+    </div>
+  </div>
+</header>
 
-        <div class="form-group">
-            <label for="service">الحرفة / الخدمة:</label>
-            <select id="service" required>
-                <option value="">اختار الحرفة...</option>
-                <option value="plumber">بلومبي (Plombier)</option>
-                <option value="electrician">ينري (Électricien)</option>
-                <option value="painter">صباغ (Peintre)</option>
-                <option value="carpenter">نجار (Menuisier)</option>
-            </select>
-        </div>
+<!-- ================= HOME ================= -->
+<div class="view active" id="view-home">
+  <div class="hero">
+    <div class="wrap">
+      <span class="eyebrow">🏘️ حي القرية · سلا</span>
+      <h1>كل صانع فحومتك، على بعد كليك وحدة.</h1>
+      <p class="lead">منصة كتجمع بين الصناع اللي كيصلحو ويبنيو كلشي، ونا الناس المحتاجين للخدمة. من الكهربا حتى البناء، فحي القرية وما جاورها.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="goto('request')">🔍 بغيت خدمة دابا</button>
+        <button class="btn btn-outline" onclick="goto('join')">🛠️ سجل كصانع</button>
+      </div>
+    </div>
+    <div class="stamp-decor"></div>
+  </div>
 
-        <div class="form-group">
-            <label for="quarter">الحي فـ سلا:</label>
-            <input type="text" id="quarter" required placeholder="مثال: تابريكت، بطانة، تابحيرت...">
-        </div>
+  <section class="wrap">
+    <div class="section-head">
+      <div class="tag">كيفاش كتخدم</div>
+      <h2>ثلاث خطوات وتوصل للحرفي لي محتاج</h2>
+    </div>
+    <div class="steps">
+      <div class="step-card"><div class="icon">📍</div><h3>حدد شنو محتاج ومنين</h3><p>خدمة، حي، والبلاصة بالضبط فوق الخريطة.</p></div>
+      <div class="step-card"><div class="icon">🤝</div><h3>نلقاوليك الصانع المناسب</h3><p>كنتواصلو معاك مباشرة أو عبر واتساب.</p></div>
+      <div class="step-card"><div class="icon">⭐</div><h3>قيّم من بعد الخدمة</h3><p>تقييمك كيعاون الجيران يختارو بثقة.</p></div>
+    </div>
+  </section>
 
-        <button type="submit" id="submitBtn">تسجيل الحرفي</button>
-    </form>
-
-    <div id="message"></div>
+  <section class="wrap">
+    <div class="section-head">
+      <div class="tag">الخدمات</div>
+      <h2>شنو كنلقاو فالقرية</h2>
+    </div>
+    <div class="chips" id="home-chips"></div>
+    <div class="grid" id="home-grid"></div>
+  </section>
 </div>
 
+<!-- ================= BROWSE ================= -->
+<div class="view" id="view-browse">
+  <section class="wrap">
+    <div class="section-head">
+      <div class="tag">لائحة الصناع</div>
+      <h2>قلب على الصانع المناسب ليك</h2>
+      <p>صافي الصناع المعتمدين لي بانو فهاد اللائحة تأكدو منهم يدويا.</p>
+    </div>
+    <div class="chips" id="browse-chips"></div>
+    <div class="grid" id="browse-grid"></div>
+  </section>
+</div>
+
+<!-- ================= REQUEST SERVICE ================= -->
+<div class="view" id="view-request">
+  <section class="wrap">
+    <div class="section-head">
+      <div class="tag">بغيت خدمة</div>
+      <h2>عمر الطلب وحنا كنلقاوليك الصانع</h2>
+      <p>عمر المعلومات وحدد البلاصة بالضبط فوق الخريطة، وغادي نتواصلو معاك.</p>
+    </div>
+    <div class="form-card">
+      <div class="msg-banner" id="req-msg"></div>
+      <form id="req-form">
+        <div class="form-row">
+          <label>سميتك</label>
+          <input type="text" id="req-name" required>
+        </div>
+        <div class="form-row">
+          <label>رقم التليفون (واتساب)</label>
+          <input type="tel" id="req-phone" required placeholder="06XXXXXXXX">
+        </div>
+        <div class="form-row">
+          <label>شنو الخدمة المحتاجة</label>
+          <div class="category-select-grid" id="req-cat-grid"></div>
+        </div>
+        <div class="form-row">
+          <label>وضح شنو محتاج بالضبط</label>
+          <textarea id="req-desc" placeholder="مثلا: تسريب ماء تحت الحوض ديال المطبخ..." required></textarea>
+        </div>
+        <div class="two-col form-row">
+          <div>
+            <label>الحي</label>
+            <input type="text" id="req-neighborhood" value="القرية" required>
+          </div>
+          <div>
+            <label>تاريخ مفضل (اختياري)</label>
+            <input type="date" id="req-date">
+          </div>
+        </div>
+        <div class="form-row">
+          <label>حدد البلاصة بالضبط فوق الخريطة</label>
+          <div id="map-picker-req"></div>
+          <div class="map-hint">📍 كليك فوق الخريطة باش تحدد فين ساكن بالضبط</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">إرسال الطلب</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ================= JOIN AS CRAFTSMAN ================= -->
+<div class="view" id="view-join">
+  <section class="wrap">
+    <div class="section-head">
+      <div class="tag">أنا صانع</div>
+      <h2>سجل نفسك وبدا توصلك الطلبات</h2>
+      <p>عمر ملفك بالتفاصيل ديالك، والصور، وحتى تسجيل صوتي إلا بغيتي. الفريق ديالنا غادي يراجع الملف قبل ما يبان للناس.</p>
+    </div>
+    <div class="form-card">
+      <div class="msg-banner" id="join-msg"></div>
+      <form id="join-form">
+        <div class="form-row">
+          <label>سميتك الكاملة</label>
+          <input type="text" id="join-name" required>
+        </div>
+        <div class="form-row">
+          <label>رقم التليفون (واتساب)</label>
+          <input type="tel" id="join-phone" required placeholder="06XXXXXXXX">
+        </div>
+        <div class="form-row">
+          <label>شنو الخدمة لي كتقدم</label>
+          <div class="category-select-grid" id="join-cat-grid"></div>
+        </div>
+        <div class="two-col form-row">
+          <div>
+            <label>الحي</label>
+            <input type="text" id="join-neighborhood" value="القرية" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>حدد البلاصة ديالك بالضبط فوق الخريطة</label>
+          <div id="map-picker"></div>
+          <div class="map-hint">📍 كليك فوق الخريطة باش تحدد فين ساكن بالضبط</div>
+        </div>
+        <div class="form-row">
+          <label>وصف قصير على الخبرة والخدمات ديالك</label>
+          <textarea id="join-desc" placeholder="مثلا: كهربائي بـ8 سنين ديال الخبرة، كنخدم فالتأسيس والإصلاح..." required></textarea>
+        </div>
+        <div class="form-row">
+          <label>تسجيل صوتي (اختياري) — عرف براسك بصوتك</label>
+          <div class="audio-controls">
+            <button type="button" class="btn btn-zellige" id="rec-btn">🎙️ بدا التسجيل</button>
+            <span class="rec-dot" id="rec-dot"></span>
+            <audio id="rec-playback" controls style="display:none;height:36px;"></audio>
+            <button type="button" class="btn btn-outline" id="rec-clear" style="display:none;padding:8px 14px;">حذف</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>صور من شغلك السابق (حتى 3 تصاور)</label>
+          <input type="file" id="join-photos" accept="image/*" multiple>
+          <div class="photo-row" id="join-photo-preview"></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">سجل ملفي</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ================= ADMIN ================= -->
+<div class="view" id="view-admin">
+  <section class="wrap">
+    <div id="admin-login" class="form-card">
+      <div class="section-head">
+        <div class="tag">لوحة التحكم</div>
+        <h2>دخول المشرف</h2>
+      </div>
+      <div class="msg-banner" id="admin-login-msg"></div>
+      <div class="form-row">
+        <label>كلمة السر</label>
+        <input type="text" id="admin-pass">
+      </div>
+      <button class="btn btn-primary btn-block" onclick="adminLogin()">دخول</button>
+    </div>
+
+    <div id="admin-dash" style="display:none;">
+      <div class="section-head">
+        <div class="tag">لوحة التحكم</div>
+        <h2>مرحبا بيك فالإدارة</h2>
+      </div>
+      <div class="stat-cards" id="admin-stats"></div>
+      <div class="admin-tabs">
+        <button class="active" data-tab="craftsmen">الصناع</button>
+        <button data-tab="requests">الطلبات</button>
+      </div>
+      <div id="admin-craftsmen"></div>
+      <div id="admin-requests" style="display:none;"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ================= PROFILE MODAL ================= -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-close"><button onclick="closeModal()">✕</button></div>
+    <div class="modal-inner" id="profile-content"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <strong>القرية</strong> — منصة الصناع والحرفيين، حي القرية، سلا.<br>
+    كل الخدمات كتخلص كاش مباشرة مع الصانع.
+  </div>
+</footer>
+
 <script>
-   const SUPABASE_URL = "https://bdputjojkmipawxtoqkd.supabase.co/rest/v1/
-   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkcHV0am9qa21pcGF3eHRvcWtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODg4NzUsImV4cCI6MjEwMDc2NDg3NX0.jafLSwZWQYDzc5BShqlBif7nUTkBxScvEaHrgAQnIqg
-    git add .
-git commit -m "add supabase keys"
-git push origin main
-    const SUPABASE_URL = "حط_هنا_PROJECT_URL_ديالك"; 
-    const SUPABASE_KEY = "حط_هنا_ANON_KEY_ديالك"; 
+/* ======================================================================
+   FIREBASE CONFIG
+   TODO(HOSN): بدل هاد المعلومات بواحد Firebase project جديد سميتو مثلا
+   "al-qarya" — دير Firestore فمود Test/Production مع القواعد لي غادي
+   نعطيوك فالأخير. الفيلد ديال المشرف (كلمة السر) خاصو يتبدل تحت.
+   ====================================================================== */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "al-qarya.firebaseapp.com",
+  projectId: "al-qarya",
+  storageBucket: "al-qarya.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    // تهيئة الاتصال بـ Supabase
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const ADMIN_PASSWORD = "qarya2026"; // TODO(HOSN): بدلها بكلمة سر خاصة بيك
 
-    // التعامل مع الفورم عند الضغط على الزر
-    document.getElementById('handymanForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+const CATEGORIES = [
+  {id:'electricite', label:'كهرباء', icon:'⚡'},
+  {id:'plomberie', label:'سباكة', icon:'🔧'},
+  {id:'menuiserie', label:'نجارة', icon:'🪚'},
+  {id:'construction', label:'بناء', icon:'🧱'},
+  {id:'peinture', label:'صباغة', icon:'🎨'},
+  {id:'climatisation', label:'تبريد وتكييف', icon:'❄️'},
+  {id:'nettoyage', label:'تنظيف', icon:'🧹'},
+  {id:'autre', label:'خدمة أخرى', icon:'✨'}
+];
 
-        const submitBtn = document.getElementById('submitBtn');
-        const messageDiv = document.getElementById('message');
+const KARIA_CENTER = [34.02113342285156, -6.765234470367432]; // سلا - القرية
 
-        // التغيير لحالة التحميل
-        submitBtn.disabled = true;
-        submitBtn.innerText = "جاري التسجيل...";
-        messageDiv.innerText = "";
+/* ---------------- View routing ---------------- */
+function goto(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.navlinks button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(view==='join') setTimeout(()=>joinMap && joinMap.invalidateSize(),150);
+  if(view==='request') setTimeout(()=>reqMap && reqMap.invalidateSize(),150);
+}
+document.querySelectorAll('.navlinks button').forEach(b=>{
+  b.addEventListener('click',()=>goto(b.dataset.view));
+});
 
-        const name = document.getElementById('name').value;
-        const phone = document.getElementById('phone').value;
-        const service = document.getElementById('service').value;
-        const quarter = document.getElementById('quarter').value;
-
-        // إرسال البيانات لـ Supabase
-        const { data, error } = await _supabase
-            .from('handymen')
-            .insert([
-                { name: name, phone: phone, service: service, quarter: quarter }
-            ]);
-
-        if (error) {
-            console.error('Error:', error);
-            messageDiv.style.color = 'red';
-            messageDiv.innerText = "وقعات شي حاجة غلط! حاول عاود وتأكد من الربط.";
-        } else {
-            messageDiv.style.color = 'green';
-            messageDiv.innerText = "تم التسجيل بنجاح! تبارك الله عليك 🚀";
-            document.getElementById('handymanForm').reset();
-        }
-
-        submitBtn.disabled = false;
-        submitBtn.innerText = "تسجيل الحرفي";
+/* ---------------- Category chip builders ---------------- */
+function renderChips(container, onSelect){
+  const el = document.getElementById(container);
+  let active = 'all';
+  function draw(){
+    el.innerHTML = '<button class="chip '+(active==='all'?'active':'')+'" data-c="all">🗂️ الكل</button>' +
+      CATEGORIES.map(c=>`<button class="chip ${active===c.id?'active':''}" data-c="${c.id}">${c.icon} ${c.label}</button>`).join('');
+    el.querySelectorAll('.chip').forEach(ch=>{
+      ch.addEventListener('click',()=>{active=ch.dataset.c;draw();onSelect(active);});
     });
-</script>
+  }
+  draw();
+}
+function catLabel(id){const c=CATEGORIES.find(x=>x.id===id);return c?c.icon+' '+c.label:id;}
 
+function renderCategoryGrid(containerId, hiddenInputName){
+  const el = document.getElementById(containerId);
+  el.innerHTML = CATEGORIES.map(c=>`
+    <label class="cat-option" data-c="${c.id}">
+      <input type="radio" name="${hiddenInputName}" value="${c.id}">
+      <div>${c.icon}</div><div>${c.label}</div>
+    </label>`).join('');
+  el.querySelectorAll('.cat-option').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      el.querySelectorAll('.cat-option').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input').checked = true;
+    });
+  });
+}
+renderCategoryGrid('req-cat-grid','req-cat');
+renderCategoryGrid('join-cat-grid','join-cat');
+function getSelectedCategory(containerId){
+  const el = document.querySelector('#'+containerId+' input:checked');
+  return el ? el.value : null;
+}
+
+/* ---------------- Maps (Leaflet) ---------------- */
+let joinMap, joinMarker, joinLatLng = null;
+let reqMap, reqMarker, reqLatLng = null;
+
+function initMaps(){
+  joinMap = L.map('map-picker').setView(KARIA_CENTER, 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(joinMap);
+  joinMap.on('click', e=>{
+    joinLatLng = e.latlng;
+    if(joinMarker) joinMap.removeLayer(joinMarker);
+    joinMarker = L.marker(e.latlng).addTo(joinMap);
+  });
+
+  reqMap = L.map('map-picker-req').setView(KARIA_CENTER, 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(reqMap);
+  reqMap.on('click', e=>{
+    reqLatLng = e.latlng;
+    if(reqMarker) reqMap.removeLayer(reqMarker);
+    reqMarker = L.marker(e.latlng).addTo(reqMap);
+  });
+}
+window.addEventListener('load', initMaps);
+
+/* ---------------- Audio recording ---------------- */
+let mediaRecorder, audioChunks=[], audioBase64=null;
+const recBtn = document.getElementById('rec-btn');
+const recDot = document.getElementById('rec-dot');
+const recPlayback = document.getElementById('rec-playback');
+const recClear = document.getElementById('rec-clear');
+let isRecording=false;
+
+recBtn.addEventListener('click', async ()=>{
+  if(!isRecording){
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks=[];
+      mediaRecorder.ondataavailable = e=>audioChunks.push(e.data);
+      mediaRecorder.onstop = ()=>{
+        const blob = new Blob(audioChunks,{type:'audio/webm'});
+        const reader = new FileReader();
+        reader.onloadend = ()=>{
+          audioBase64 = reader.result;
+          recPlayback.src = audioBase64;
+          recPlayback.style.display='inline-block';
+          recClear.style.display='inline-block';
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      mediaRecorder.start();
+      isRecording=true;
+      recBtn.textContent='⏹️ وقف التسجيل';
+      recDot.classList.add('on');
+    }catch(err){
+      alert('ما قدرناش نوصلو للميكرو. تأكد من الصلاحيات.');
+    }
+  } else {
+    mediaRecorder.stop();
+    isRecording=false;
+    recBtn.textContent='🎙️ بدا التسجيل';
+    recDot.classList.remove('on');
+  }
+});
+recClear.addEventListener('click',()=>{
+  audioBase64=null; recPlayback.style.display='none'; recClear.style.display='none'; recPlayback.src='';
+});
+
+/* ---------------- Photo upload (compressed base64) ---------------- */
+let joinPhotos = [];
+document.getElementById('join-photos').addEventListener('change', function(e){
+  const files = Array.from(e.target.files).slice(0, 3 - joinPhotos.length);
+  files.forEach(file=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      img.onload = ()=>{
+        const canvas = document.createElement('canvas');
+        const maxW = 500;
+        const scale = Math.min(1, maxW/img.width);
+        canvas.width = img.width*scale;
+        canvas.height = img.height*scale;
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+        const compressed = canvas.toDataURL('image/jpeg', 0.6);
+        if(joinPhotos.length<3){
+          joinPhotos.push(compressed);
+          renderPhotoPreview();
+        }
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value='';
+});
+function renderPhotoPreview(){
+  const el = document.getElementById('join-photo-preview');
+  el.innerHTML = joinPhotos.map((p,i)=>`
+    <div class="photo-thumb"><img src="${p}"><button type="button" onclick="removePhoto(${i})">✕</button></div>
+  `).join('');
+}
+function removePhoto(i){ joinPhotos.splice(i,1); renderPhotoPreview(); }
+
+/* ---------------- Forms submit ---------------- */
+document.getElementById('join-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const cat = getSelectedCategory('join-cat-grid');
+  const msg = document.getElementById('join-msg');
+  if(!cat){ msg.className='msg-banner err'; msg.textContent='خاصك تختار نوع الخدمة.'; return; }
+  if(!joinLatLng){ msg.className='msg-banner err'; msg.textContent='خاصك تحدد البلاصة فوق الخريطة.'; return; }
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent='كنسجلو...';
+  try{
+    await db.collection('craftsmen').add({
+      name: document.getElementById('join-name').value,
+      phone: document.getElementById('join-phone').value,
+      category: cat,
+      neighborhood: document.getElementById('join-neighborhood').value,
+      lat: joinLatLng.lat, lng: joinLatLng.lng,
+      description: document.getElementById('join-desc').value,
+      audio: audioBase64 || null,
+      photos: joinPhotos,
+      status: 'pending',
+      rating: 0, reviewsCount: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    msg.className='msg-banner ok';
+    msg.textContent='توصل طلبك! غادي نراجعو الملف ديالك ونفعلوه فأقرب وقت. 🎉';
+    e.target.reset();
+    joinPhotos=[]; renderPhotoPreview();
+    audioBase64=null; recPlayback.style.display='none'; recClear.style.display='none';
+    document.querySelectorAll('#join-cat-grid .cat-option').forEach(o=>o.classList.remove('selected'));
+  }catch(err){
+    msg.className='msg-banner err'; msg.textContent='وقع خطأ، حاول مرة أخرى. ('+err.message+')';
+  }
+  btn.disabled=false; btn.textContent='سجل ملفي';
+});
+
+document.getElementById('req-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const cat = getSelectedCategory('req-cat-grid');
+  const msg = document.getElementById('req-msg');
+  if(!cat){ msg.className='msg-banner err'; msg.textContent='خاصك تختار نوع الخدمة.'; return; }
+  if(!reqLatLng){ msg.className='msg-banner err'; msg.textContent='خاصك تحدد البلاصة فوق الخريطة.'; return; }
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent='كنرسلو...';
+  try{
+    await db.collection('requests').add({
+      clientName: document.getElementById('req-name').value,
+      clientPhone: document.getElementById('req-phone').value,
+      category: cat,
+      description: document.getElementById('req-desc').value,
+      neighborhood: document.getElementById('req-neighborhood').value,
+      preferredDate: document.getElementById('req-date').value || null,
+      lat: reqLatLng.lat, lng: reqLatLng.lng,
+      status: 'pending',
+      serviceValue: null, commission: null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    msg.className='msg-banner ok';
+    msg.textContent='توصل طلبك! غادي نتواصلو معاك عبر واتساب فأقرب وقت. 🎉';
+    e.target.reset();
+    document.querySelectorAll('#req-cat-grid .cat-option').forEach(o=>o.classList.remove('selected'));
+  }catch(err){
+    msg.className='msg-banner err'; msg.textContent='وقع خطأ، حاول مرة أخرى. ('+err.message+')';
+  }
+  btn.disabled=false; btn.textContent='إرسال الطلب';
+});
+
+/* ---------------- Load & render craftsmen ---------------- */
+let allCraftsmen = [];
+function starString(r){
+  const full = Math.round(r||0);
+  return '★'.repeat(full) + '☆'.repeat(5-full);
+}
+function craftsmanCard(c){
+  const photo = c.photos && c.photos[0];
+  return `
+  <div class="card" onclick="openProfile('${c.id}')">
+    <div class="card-photo">
+      ${photo ? `<img src="${photo}">` : catLabel(c.category).split(' ')[0]}
+      ${c.status==='approved' ? '<span class="verified-badge">✓ معتمد</span>' : ''}
+    </div>
+    <div class="card-body">
+      <h3>${c.name}</h3>
+      <div class="card-meta"><span>${catLabel(c.category)}</span><span>·</span><span>${c.neighborhood||''}</span></div>
+      <div class="stars">${starString(c.rating)} ${c.reviewsCount?('('+c.reviewsCount+')'):''}</div>
+      <p class="card-desc">${c.description||''}</p>
+    </div>
+  </div>`;
+}
+function renderGrid(gridId, list){
+  const el = document.getElementById(gridId);
+  if(!list.length){ el.innerHTML = '<div class="empty-state">مازال ماكاينش صناع فهاد التصنيف. رجع من بعد أو <a href="#" onclick="goto(\'join\');return false;" style="color:var(--zellige);font-weight:800;">سجل نفسك</a>.</div>'; return; }
+  el.innerHTML = list.map(craftsmanCard).join('');
+}
+function loadCraftsmen(){
+  db.collection('craftsmen').where('status','==','approved').get().then(snap=>{
+    allCraftsmen = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderGrid('home-grid', allCraftsmen.slice(0,6));
+    renderGrid('browse-grid', allCraftsmen);
+  }).catch(err=>console.error(err));
+}
+renderChips('home-chips', cat=>{
+  const list = cat==='all' ? allCraftsmen : allCraftsmen.filter(c=>c.category===cat);
+  renderGrid('home-grid', list);
+});
+renderChips('browse-chips', cat=>{
+  const list = cat==='all' ? allCraftsmen : allCraftsmen.filter(c=>c.category===cat);
+  renderGrid('browse-grid', list);
+});
+loadCraftsmen();
+
+/* ---------------- Profile modal + reviews ---------------- */
+function openProfile(id){
+  const c = allCraftsmen.find(x=>x.id===id);
+  if(!c) return;
+  const content = document.getElementById('profile-content');
+  content.innerHTML = `
+    ${c.photos && c.photos.length ? `<div class="photo-row">${c.photos.map(p=>`<div class="photo-thumb" style="width:100px;height:100px;"><img src="${p}"></div>`).join('')}</div>` : ''}
+    <h2>${c.name} ${c.status==='approved'?'<span class="verified-badge" style="position:static;display:inline-flex;">✓ معتمد</span>':''}</h2>
+    <div class="card-meta">${catLabel(c.category)} · ${c.neighborhood||''}</div>
+    <div class="stars" style="margin:6px 0 14px;">${starString(c.rating)} ${c.reviewsCount?('('+c.reviewsCount+' تقييم)'):'(مازال بلا تقييم)'}</div>
+    <p>${c.description||''}</p>
+    ${c.audio ? `<audio controls src="${c.audio}" style="width:100%;margin:10px 0;"></audio>` : ''}
+    <a class="btn btn-zellige btn-block" style="margin:14px 0;" target="_blank" href="https://wa.me/${(c.phone||'').replace(/[^0-9]/g,'')}">💬 تواصل عبر واتساب</a>
+    <div id="reviews-list"></div>
+    <div class="form-row" style="margin-top:18px;">
+      <label>خلفتي الخدمة معاه؟ قيّمو</label>
+      <select id="rev-stars"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
+      <input type="text" id="rev-name" placeholder="سميتك" style="margin-top:8px;">
+      <textarea id="rev-comment" placeholder="كيفاش كانت الخدمة؟" style="margin-top:8px;"></textarea>
+      <button class="btn btn-primary btn-block" style="margin-top:10px;" onclick="submitReview('${c.id}')">إرسال التقييم</button>
+    </div>
+  `;
+  loadReviews(c.id);
+  document.getElementById('profile-modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('profile-modal').classList.remove('open'); }
+function loadReviews(craftsmanId){
+  db.collection('reviews').where('craftsmanId','==',craftsmanId).orderBy('createdAt','desc').limit(10).get().then(snap=>{
+    const el = document.getElementById('reviews-list');
+    if(!el) return;
+    if(snap.empty){ el.innerHTML=''; return; }
+    el.innerHTML = snap.docs.map(d=>{
+      const r = d.data();
+      return `<div class="review-item"><div class="rstars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)} — ${r.name}</div><p>${r.comment||''}</p></div>`;
+    }).join('');
+  });
+}
+async function submitReview(craftsmanId){
+  const stars = parseInt(document.getElementById('rev-stars').value);
+  const name = document.getElementById('rev-name').value || 'زبون';
+  const comment = document.getElementById('rev-comment').value;
+  await db.collection('reviews').add({craftsmanId, stars, name, comment, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  const c = allCraftsmen.find(x=>x.id===craftsmanId);
+  const newCount = (c.reviewsCount||0)+1;
+  const newRating = (((c.rating||0)*(c.reviewsCount||0))+stars)/newCount;
+  await db.collection('craftsmen').doc(craftsmanId).update({rating:newRating, reviewsCount:newCount});
+  loadReviews(craftsmanId);
+  loadCraftsmen();
+  document.getElementById('rev-comment').value='';
+  alert('شكرا على تقييمك! 🙏');
+}
+
+/* ---------------- Admin ---------------- */
+function adminLogin(){
+  const pass = document.getElementById('admin-pass').value;
+  const msg = document.getElementById('admin-login-msg');
+  if(pass === ADMIN_PASSWORD){
+    document.getElementById('admin-login').style.display='none';
+    document.getElementById('admin-dash').style.display='block';
+    loadAdminData();
+  } else {
+    msg.className='msg-banner err'; msg.textContent='كلمة السر غالطة.';
+  }
+}
+document.querySelectorAll('.admin-tabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.admin-tabs button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('admin-craftsmen').style.display = b.dataset.tab==='craftsmen' ? 'block':'none';
+    document.getElementById('admin-requests').style.display = b.dataset.tab==='requests' ? 'block':'none';
+  });
+});
+
+function loadAdminData(){
+  db.collection('craftsmen').orderBy('createdAt','desc').get().then(snap=>{
+    const list = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderAdminStats(list);
+    renderAdminCraftsmen(list);
+  });
+  db.collection('requests').orderBy('createdAt','desc').get().then(snap=>{
+    const list = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderAdminRequests(list);
+  });
+}
+function renderAdminStats(craftsmen){
+  const approved = craftsmen.filter(c=>c.status==='approved').length;
+  const pending = craftsmen.filter(c=>c.status==='pending').length;
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="stat-card"><div class="num">${craftsmen.length}</div><div class="lbl">مجموع الصناع</div></div>
+    <div class="stat-card"><div class="num">${approved}</div><div class="lbl">معتمدين</div></div>
+    <div class="stat-card"><div class="num">${pending}</div><div class="lbl">فالانتظار</div></div>
+  `;
+}
+function renderAdminCraftsmen(list){
+  const el = document.getElementById('admin-craftsmen');
+  el.innerHTML = `<table class="admin-table"><thead><tr>
+    <th>الاسم</th><th>الخدمة</th><th>الهاتف</th><th>الحالة</th><th>تقييم</th><th>إجراءات</th>
+  </tr></thead><tbody>
+  ${list.map(c=>`
+    <tr>
+      <td>${c.name}</td>
+      <td>${catLabel(c.category)}</td>
+      <td class="mono">${c.phone}</td>
+      <td><span class="badge ${c.status}">${c.status==='approved'?'معتمد':'فالانتظار'}</span></td>
+      <td>${c.rating? c.rating.toFixed(1):'—'} (${c.reviewsCount||0})</td>
+      <td>
+        ${c.status!=='approved' ? `<button class="mini-btn approve" onclick="approveCraftsman('${c.id}')">فعّل</button>`:''}
+        <button class="mini-btn delete" onclick="deleteCraftsman('${c.id}')">حذف</button>
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+async function approveCraftsman(id){
+  await db.collection('craftsmen').doc(id).update({status:'approved'});
+  loadAdminData(); loadCraftsmen();
+}
+async function deleteCraftsman(id){
+  if(!confirm('متأكد بغيتي تحذف هاد الصانع؟')) return;
+  await db.collection('craftsmen').doc(id).delete();
+  loadAdminData(); loadCraftsmen();
+}
+function renderAdminRequests(list){
+  const el = document.getElementById('admin-requests');
+  el.innerHTML = `<table class="admin-table"><thead><tr>
+    <th>الزبون</th><th>الخدمة</th><th>الهاتف</th><th>الحي</th><th>الحالة</th><th>قيمة الخدمة (درهم)</th><th>إجراءات</th>
+  </tr></thead><tbody>
+  ${list.map(r=>`
+    <tr>
+      <td>${r.clientName}</td>
+      <td>${catLabel(r.category)}</td>
+      <td class="mono">${r.clientPhone}</td>
+      <td>${r.neighborhood||''}</td>
+      <td><span class="badge ${r.status==='completed'?'completed':'pending'}">${r.status==='completed'?'كملات':'فالانتظار'}</span></td>
+      <td class="mono">${r.serviceValue ? r.serviceValue+' درهم (عمولة '+r.commission+')' : '—'}</td>
+      <td>
+        ${r.status!=='completed' ? `<button class="mini-btn approve" onclick="completeRequest('${r.id}')">كمل + سجل القيمة</button>`:''}
+        <button class="mini-btn delete" onclick="deleteRequest('${r.id}')">حذف</button>
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+async function completeRequest(id){
+  const val = prompt('شحال كانت قيمة الخدمة بالدرهم؟ (العمولة غادي تتحسب أوتوماتيك ب 10%)');
+  if(val===null) return;
+  const value = parseFloat(val)||0;
+  const commission = Math.round(value*0.10);
+  await db.collection('requests').doc(id).update({status:'completed', serviceValue:value, commission});
+  loadAdminData();
+}
+async function deleteRequest(id){
+  if(!confirm('متأكد بغيتي تحذف هاد الطلب؟')) return;
+  await db.collection('requests').doc(id).delete();
+  loadAdminData();
+}
+</script>
 </body>
 </html>
