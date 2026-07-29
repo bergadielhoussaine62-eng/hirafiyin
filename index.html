@@ -370,6 +370,11 @@ footer strong{color:var(--plaster);}
           <label>وضح شنو محتاج بالضبط</label>
           <textarea id="req-desc" placeholder="مثلا: تسريب ماء تحت الحوض ديال المطبخ..." required></textarea>
         </div>
+        <div class="form-row">
+          <label>الثمن اللي كتقترح (بالدرهم) — ماشي واجب</label>
+          <input type="text" id="req-price" placeholder="مثلا: 150" inputmode="numeric">
+          <div class="hint">بحال إندرايف: نتا كتقترح ثمن، والصانع كيقدر يقبل، ينقص، ولا يزيد — كتفاهمو مباشرة فواتساب.</div>
+        </div>
         <div class="two-col form-row">
           <div>
             <label>الحي</label>
@@ -456,10 +461,16 @@ footer strong{color:var(--plaster);}
           <div class="photo-row" id="join-photo-preview"></div>
         </div>
         <div class="form-row">
-          <label>صورة سيلفي ديالك دابا (باش نتأكدو بلي راك نتا شخصيا)</label>
-          <input type="file" id="join-selfie" accept="image/*" required>
-          <div class="photo-row" id="join-selfie-preview"></div>
-          <div class="hint">هاد الصورة غادي تبقى خاصة بالأدمن باش يتأكد منك، ماغاديش تبان للزبناء.</div>
+          <label>صورة سيلفي ديالك دابا، بالكاميرا مباشرة (ماشي تصويرة قديمة من التلفون)</label>
+          <video id="selfie-video" autoplay playsinline style="width:100%;max-width:280px;border-radius:10px;display:none;background:#000;"></video>
+          <canvas id="selfie-canvas" style="display:none;"></canvas>
+          <img id="selfie-result" style="width:160px;border-radius:10px;display:none;margin-top:6px;">
+          <div class="audio-controls" style="margin-top:10px;">
+            <button type="button" class="btn btn-zellige" id="selfie-start-btn">📷 حل الكاميرا</button>
+            <button type="button" class="btn btn-primary" id="selfie-snap-btn" style="display:none;">📸 لقط التصويرة</button>
+            <button type="button" class="btn btn-outline" id="selfie-retake-btn" style="display:none;padding:8px 14px;">عاود دير</button>
+          </div>
+          <div class="hint">هاد الصورة غادي تبقى خاصة بالأدمن باش يتأكد بلي راك نتا شخصيا، ماغاديش تبان للزبناء.</div>
         </div>
         <div class="form-row">
           <label>صورة البطاقة الوطنية ديالك (وجه واحد كافي)</label>
@@ -737,13 +748,43 @@ function renderPhotoPreview(){
 function removePhoto(i){ joinPhotos.splice(i,1); renderPhotoPreview(); }
 
 let joinSelfie = null, joinCin = null;
-document.getElementById('join-selfie').addEventListener('change', function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  compressImageFile(file, 500, 0.6, compressed=>{
-    joinSelfie = compressed;
-    document.getElementById('join-selfie-preview').innerHTML = `<div class="photo-thumb"><img src="${compressed}"></div>`;
-  });
+let selfieStream = null;
+const selfieVideo = document.getElementById('selfie-video');
+const selfieCanvas = document.getElementById('selfie-canvas');
+const selfieResult = document.getElementById('selfie-result');
+const selfieStartBtn = document.getElementById('selfie-start-btn');
+const selfieSnapBtn = document.getElementById('selfie-snap-btn');
+const selfieRetakeBtn = document.getElementById('selfie-retake-btn');
+
+selfieStartBtn.addEventListener('click', async ()=>{
+  try{
+    selfieStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+    selfieVideo.srcObject = selfieStream;
+    selfieVideo.style.display = 'block';
+    selfieStartBtn.style.display = 'none';
+    selfieSnapBtn.style.display = 'inline-flex';
+  }catch(err){
+    alert('ما قدرناش نوصلو للكاميرا. تأكد بلي عطيتي الصلاحية ديال الكاميرا للمتصفح.');
+  }
+});
+selfieSnapBtn.addEventListener('click', ()=>{
+  const w = selfieVideo.videoWidth || 400, h = selfieVideo.videoHeight || 400;
+  selfieCanvas.width = 420;
+  selfieCanvas.height = 420 * (h/w);
+  selfieCanvas.getContext('2d').drawImage(selfieVideo, 0, 0, selfieCanvas.width, selfieCanvas.height);
+  joinSelfie = selfieCanvas.toDataURL('image/jpeg', 0.7);
+  selfieResult.src = joinSelfie;
+  selfieResult.style.display = 'block';
+  selfieVideo.style.display = 'none';
+  selfieSnapBtn.style.display = 'none';
+  selfieRetakeBtn.style.display = 'inline-flex';
+  if(selfieStream){ selfieStream.getTracks().forEach(t=>t.stop()); }
+});
+selfieRetakeBtn.addEventListener('click', ()=>{
+  joinSelfie = null;
+  selfieResult.style.display = 'none';
+  selfieRetakeBtn.style.display = 'none';
+  selfieStartBtn.style.display = 'inline-flex';
 });
 document.getElementById('join-cin').addEventListener('change', function(e){
   const file = e.target.files[0];
@@ -785,7 +826,7 @@ document.getElementById('join-form').addEventListener('submit', async function(e
     e.target.reset();
     joinPhotos=[]; renderPhotoPreview();
     joinSelfie=null; joinCin=null;
-    document.getElementById('join-selfie-preview').innerHTML='';
+    selfieResult.style.display='none'; selfieRetakeBtn.style.display='none'; selfieStartBtn.style.display='inline-flex';
     document.getElementById('join-cin-preview').innerHTML='';
     audioBase64=null; recPlayback.style.display='none'; recClear.style.display='none';
     document.querySelectorAll('#join-cat-grid .cat-option').forEach(o=>o.classList.remove('selected'));
@@ -809,6 +850,7 @@ document.getElementById('req-form').addEventListener('submit', async function(e)
       clientPhone: document.getElementById('req-phone').value,
       category: cat,
       description: document.getElementById('req-desc').value,
+      proposedPrice: document.getElementById('req-price').value || null,
       neighborhood: document.getElementById('req-neighborhood').value,
       preferredDate: document.getElementById('req-date').value || null,
       lat: reqLatLng.lat, lng: reqLatLng.lng,
@@ -883,19 +925,26 @@ function updateNearestCraftsmen(){
     .slice(0,5);
   if(!matches.length){ section.style.display='none'; return; }
   section.style.display='block';
+  const desc = document.getElementById('req-desc').value;
+  const price = document.getElementById('req-price').value;
+  const waText = encodeURIComponent(
+    `سلام، عندي طلب ${catLabel(cat)}. ${desc ? desc+'. ' : ''}${price ? 'باغي نخلص فحدود '+price+' درهم، واش موافق؟' : 'شحال غادي تخلصني هاد الخدمة؟'}`
+  );
   listEl.innerHTML = matches.map(c=>`
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;margin-bottom:8px;" onclick="openProfile('${c.id}')">
       <div>
         <strong>${c.name}</strong>
         <div class="card-meta" style="margin:2px 0 0;">${c.dist.toFixed(1)} كلم عليك · ${starString(c.rating)}</div>
       </div>
-      <a class="btn btn-zellige" style="padding:8px 14px;font-size:13px;" target="_blank" onclick="event.stopPropagation()" href="https://wa.me/${(c.phone||'').replace(/[^0-9]/g,'')}">واتساب</a>
+      <a class="btn btn-zellige" style="padding:8px 14px;font-size:13px;" target="_blank" onclick="event.stopPropagation()" href="https://wa.me/${(c.phone||'').replace(/[^0-9]/g,'')}?text=${waText}">واتساب</a>
     </div>
   `).join('');
 }
 document.querySelectorAll('#req-cat-grid .cat-option').forEach(opt=>{
   opt.addEventListener('click', updateNearestCraftsmen);
 });
+document.getElementById('req-desc').addEventListener('input', updateNearestCraftsmen);
+document.getElementById('req-price').addEventListener('input', updateNearestCraftsmen);
 renderChips('home-chips', cat=>{
   const list = cat==='all' ? allCraftsmen : allCraftsmen.filter(c=>c.category===cat);
   renderGrid('home-grid', list);
@@ -1038,7 +1087,7 @@ async function deleteCraftsman(id){
 function renderAdminRequests(list){
   const el = document.getElementById('admin-requests');
   el.innerHTML = `<table class="admin-table"><thead><tr>
-    <th>الزبون</th><th>الخدمة</th><th>الهاتف</th><th>الحي</th><th>الحالة</th><th>قيمة الخدمة (درهم)</th><th>إجراءات</th>
+    <th>الزبون</th><th>الخدمة</th><th>الهاتف</th><th>الحي</th><th>الثمن المقترح</th><th>الحالة</th><th>قيمة الخدمة (درهم)</th><th>إجراءات</th>
   </tr></thead><tbody>
   ${list.map(r=>`
     <tr>
@@ -1046,6 +1095,7 @@ function renderAdminRequests(list){
       <td>${catLabel(r.category)}</td>
       <td class="mono">${r.clientPhone}</td>
       <td>${r.neighborhood||''}</td>
+      <td class="mono">${r.proposedPrice ? r.proposedPrice+' درهم' : '—'}</td>
       <td><span class="badge ${r.status==='completed'?'completed':'pending'}">${r.status==='completed'?'كملات':'فالانتظار'}</span></td>
       <td class="mono">${r.serviceValue ? r.serviceValue+' درهم (عمولة '+r.commission+')' : '—'}</td>
       <td>
