@@ -192,8 +192,16 @@ input[type=text],input[type=tel],input[type=date],input[type=time],textarea,sele
 input:focus,textarea:focus,select:focus{outline:2px solid var(--clay);outline-offset:1px;}
 textarea{min-height:90px;resize:vertical;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-#map-picker, #map-picker-req{height:260px;border-radius:10px;border:1.5px solid var(--line);margin-top:6px;}
+#map-picker, #map-picker-req{height:260px;border-radius:10px;border:1.5px solid var(--line);margin-top:10px;}
 .map-hint{font-size:12.5px;color:var(--zellige);font-weight:700;margin-top:6px;}
+.btn-locate{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(135deg, var(--charcoal), var(--charcoal-soft));
+  border:1.5px solid var(--clay);color:var(--clay);
+  padding:14px;border-radius:10px;font-weight:800;font-size:15px;transition:.15s;
+}
+.btn-locate:hover{background:var(--clay);color:var(--charcoal);}
+.btn-locate:disabled{opacity:.7;cursor:wait;}
 
 .audio-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .rec-dot{width:9px;height:9px;border-radius:50%;background:var(--rust);display:none;}
@@ -377,6 +385,7 @@ footer strong{color:var(--plaster);}
         </div>
         <div class="form-row">
           <label>البلاصة ديالك تلقات أوتوماتيك، ولا صححها فوق الخريطة</label>
+          <button type="button" class="btn-locate" id="locate-req-btn">📍 استعمل بلاصتي الحالية</button>
           <div id="map-picker-req"></div>
           <div class="map-hint">📍 كليك فوق الخريطة إلا بغيتي تصحح البلاصة</div>
         </div>
@@ -424,6 +433,7 @@ footer strong{color:var(--plaster);}
         </div>
         <div class="form-row">
           <label>البلاصة ديالك تلقات أوتوماتيك، ولا صححها فوق الخريطة</label>
+          <button type="button" class="btn-locate" id="locate-join-btn">📍 استعمل بلاصتي الحالية</button>
           <div id="map-picker"></div>
           <div class="map-hint">📍 كليك فوق الخريطة باش تحدد فين ساكن بالضبط</div>
         </div>
@@ -596,15 +606,26 @@ function placeReqMarker(latlng){
   reqMarker = L.marker(latlng).addTo(reqMap);
   updateNearestCraftsmen();
 }
-function tryAutoLocate(map, onFound){
-  if(!navigator.geolocation) return;
+function tryAutoLocate(map, onFound, btn){
+  if(!navigator.geolocation){
+    if(btn) btn.textContent = '❌ GPS ماكاينش فهاد المتصفح';
+    return;
+  }
+  const originalText = btn ? btn.textContent : null;
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ كنقلبو على البلاصة ديالك...'; }
   navigator.geolocation.getCurrentPosition(
     pos=>{
       const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
       map.setView(latlng, 16);
       onFound(latlng);
+      if(btn){ btn.disabled = false; btn.textContent = originalText; }
     },
-    ()=>{ /* المستخدم رفض ولا ماكاينش GPS، كنخليو المركز الافتراضي ديال القرية */ },
+    ()=>{
+      if(btn){
+        btn.disabled = false; btn.textContent = originalText;
+        alert('ما قدرناش نوصلو لبلاصتك. تأكد بلي عطيتي الصلاحية ديال الموقع للمتصفح، أو حدد البلاصة بكليك فوق الخريطة.');
+      }
+    },
     {enableHighAccuracy:true, timeout:8000}
   );
 }
@@ -613,11 +634,13 @@ function initMaps(){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(joinMap);
   joinMap.on('click', e=>placeJoinMarker(e.latlng));
   tryAutoLocate(joinMap, placeJoinMarker);
+  document.getElementById('locate-join-btn').addEventListener('click', ()=>tryAutoLocate(joinMap, placeJoinMarker, document.getElementById('locate-join-btn')));
 
   reqMap = L.map('map-picker-req').setView(KARIA_CENTER, 15);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(reqMap);
   reqMap.on('click', e=>placeReqMarker(e.latlng));
   tryAutoLocate(reqMap, placeReqMarker);
+  document.getElementById('locate-req-btn').addEventListener('click', ()=>tryAutoLocate(reqMap, placeReqMarker, document.getElementById('locate-req-btn')));
 }
 window.addEventListener('load', initMaps);
 
