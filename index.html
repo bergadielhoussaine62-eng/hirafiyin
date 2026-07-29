@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>القرية | حرفيين وصناع فسلا</title>
-<meta name="description" content="منصة كتجمع بين الناس اللي كيصلحو وكيبنيو وناس اللي محتاجين الخدمة، فحي القرية سلا.">
+<title>الحرفيين | صناع سلا، بداية من القرية</title>
+<meta name="description" content="منصة كتجمع بين الناس اللي كيصلحو وكيبنيو وناس اللي محتاجين الخدمة، لسلا، بداية من حي القرية.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -274,7 +274,7 @@ footer strong{color:var(--plaster);}
 
 <header class="site">
   <div class="nav">
-    <div class="brand"><span class="seal">ق</span> القرية</div>
+    <div class="brand"><span class="seal">ح</span> الحرفيين</div>
     <div class="navlinks">
       <button data-view="home" class="active">الرئيسية</button>
       <button data-view="browse">الصناع</button>
@@ -291,7 +291,7 @@ footer strong{color:var(--plaster);}
     <div class="wrap">
       <span class="eyebrow">🏘️ حي القرية · سلا</span>
       <h1>كل صانع فحومتك، على بعد كليك وحدة.</h1>
-      <p class="lead">منصة كتجمع بين الصناع اللي كيصلحو ويبنيو كلشي، ونا الناس المحتاجين للخدمة. من الكهربا حتى البناء، فحي القرية وما جاورها.</p>
+      <p class="lead">منصة كتجمع بين الصناع اللي كيصلحو ويبنيو كلشي، ونا الناس المحتاجين للخدمة. من الكهربا حتى البناء، لسلا.</p>
       <div class="hero-actions">
         <button class="btn btn-primary" onclick="goto('request')">🔍 بغيت خدمة دابا</button>
         <button class="btn btn-outline" onclick="goto('join')">🛠️ سجل كصانع</button>
@@ -365,7 +365,10 @@ footer strong{color:var(--plaster);}
         <div class="two-col form-row">
           <div>
             <label>الحي</label>
-            <input type="text" id="req-neighborhood" value="القرية" required>
+            <select id="req-neighborhood" required>
+              <option value="القرية">القرية</option>
+            </select>
+            <div class="hint">دابا كنخدمو غير فحي القرية، وغادي نزيدو أحياء أخرى ديال سلا قريبا.</div>
           </div>
           <div>
             <label>تاريخ مفضل (اختياري)</label>
@@ -373,9 +376,13 @@ footer strong{color:var(--plaster);}
           </div>
         </div>
         <div class="form-row">
-          <label>حدد البلاصة بالضبط فوق الخريطة</label>
+          <label>البلاصة ديالك تلقات أوتوماتيك، ولا صححها فوق الخريطة</label>
           <div id="map-picker-req"></div>
-          <div class="map-hint">📍 كليك فوق الخريطة باش تحدد فين ساكن بالضبط</div>
+          <div class="map-hint">📍 كليك فوق الخريطة إلا بغيتي تصحح البلاصة</div>
+        </div>
+        <div class="form-row" id="nearest-section" style="display:none;">
+          <label>أقرب الصناع ليك فهاد الخدمة</label>
+          <div id="nearest-list"></div>
         </div>
         <button type="submit" class="btn btn-primary btn-block">إرسال الطلب</button>
       </form>
@@ -409,11 +416,14 @@ footer strong{color:var(--plaster);}
         <div class="two-col form-row">
           <div>
             <label>الحي</label>
-            <input type="text" id="join-neighborhood" value="القرية" required>
+            <select id="join-neighborhood" required>
+              <option value="القرية">القرية</option>
+            </select>
+            <div class="hint">دابا كنخدمو غير فحي القرية، وغادي نزيدو أحياء أخرى ديال سلا قريبا.</div>
           </div>
         </div>
         <div class="form-row">
-          <label>حدد البلاصة ديالك بالضبط فوق الخريطة</label>
+          <label>البلاصة ديالك تلقات أوتوماتيك، ولا صححها فوق الخريطة</label>
           <div id="map-picker"></div>
           <div class="map-hint">📍 كليك فوق الخريطة باش تحدد فين ساكن بالضبط</div>
         </div>
@@ -483,7 +493,7 @@ footer strong{color:var(--plaster);}
 
 <footer>
   <div class="wrap">
-    <strong>القرية</strong> — منصة الصناع والحرفيين، حي القرية، سلا.<br>
+    <strong>الحرفيين</strong> — منصة الصناع والحرفيين لسلا، بداية من حي القرية.<br>
     كل الخدمات كتخلص كاش مباشرة مع الصانع.
   </div>
 </footer>
@@ -575,22 +585,39 @@ function getSelectedCategory(containerId){
 let joinMap, joinMarker, joinLatLng = null;
 let reqMap, reqMarker, reqLatLng = null;
 
+function placeJoinMarker(latlng){
+  joinLatLng = latlng;
+  if(joinMarker) joinMap.removeLayer(joinMarker);
+  joinMarker = L.marker(latlng).addTo(joinMap);
+}
+function placeReqMarker(latlng){
+  reqLatLng = latlng;
+  if(reqMarker) reqMap.removeLayer(reqMarker);
+  reqMarker = L.marker(latlng).addTo(reqMap);
+  updateNearestCraftsmen();
+}
+function tryAutoLocate(map, onFound){
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+      map.setView(latlng, 16);
+      onFound(latlng);
+    },
+    ()=>{ /* المستخدم رفض ولا ماكاينش GPS، كنخليو المركز الافتراضي ديال القرية */ },
+    {enableHighAccuracy:true, timeout:8000}
+  );
+}
 function initMaps(){
   joinMap = L.map('map-picker').setView(KARIA_CENTER, 15);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(joinMap);
-  joinMap.on('click', e=>{
-    joinLatLng = e.latlng;
-    if(joinMarker) joinMap.removeLayer(joinMarker);
-    joinMarker = L.marker(e.latlng).addTo(joinMap);
-  });
+  joinMap.on('click', e=>placeJoinMarker(e.latlng));
+  tryAutoLocate(joinMap, placeJoinMarker);
 
   reqMap = L.map('map-picker-req').setView(KARIA_CENTER, 15);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(reqMap);
-  reqMap.on('click', e=>{
-    reqLatLng = e.latlng;
-    if(reqMarker) reqMap.removeLayer(reqMarker);
-    reqMarker = L.marker(e.latlng).addTo(reqMap);
-  });
+  reqMap.on('click', e=>placeReqMarker(e.latlng));
+  tryAutoLocate(reqMap, placeReqMarker);
 }
 window.addEventListener('load', initMaps);
 
@@ -772,8 +799,44 @@ function loadCraftsmen(){
     allCraftsmen = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderGrid('home-grid', allCraftsmen.slice(0,6));
     renderGrid('browse-grid', allCraftsmen);
+    updateNearestCraftsmen();
   }).catch(err=>console.error(err));
 }
+
+/* ---------------- Nearest craftsmen (client-side matching) ---------------- */
+function haversineKm(lat1,lng1,lat2,lng2){
+  const R=6371;
+  const dLat=(lat2-lat1)*Math.PI/180;
+  const dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function updateNearestCraftsmen(){
+  const section = document.getElementById('nearest-section');
+  const listEl = document.getElementById('nearest-list');
+  if(!section || !listEl) return;
+  const cat = getSelectedCategory('req-cat-grid');
+  if(!cat || !reqLatLng || !allCraftsmen.length){ section.style.display='none'; return; }
+  const matches = allCraftsmen
+    .filter(c=>c.category===cat && typeof c.lat==='number')
+    .map(c=>({...c, dist: haversineKm(reqLatLng.lat, reqLatLng.lng, c.lat, c.lng)}))
+    .sort((a,b)=>a.dist-b.dist)
+    .slice(0,5);
+  if(!matches.length){ section.style.display='none'; return; }
+  section.style.display='block';
+  listEl.innerHTML = matches.map(c=>`
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;margin-bottom:8px;" onclick="openProfile('${c.id}')">
+      <div>
+        <strong>${c.name}</strong>
+        <div class="card-meta" style="margin:2px 0 0;">${c.dist.toFixed(1)} كلم عليك · ${starString(c.rating)}</div>
+      </div>
+      <a class="btn btn-zellige" style="padding:8px 14px;font-size:13px;" target="_blank" onclick="event.stopPropagation()" href="https://wa.me/${(c.phone||'').replace(/[^0-9]/g,'')}">واتساب</a>
+    </div>
+  `).join('');
+}
+document.querySelectorAll('#req-cat-grid .cat-option').forEach(opt=>{
+  opt.addEventListener('click', updateNearestCraftsmen);
+});
 renderChips('home-chips', cat=>{
   const list = cat==='all' ? allCraftsmen : allCraftsmen.filter(c=>c.category===cat);
   renderGrid('home-grid', list);
