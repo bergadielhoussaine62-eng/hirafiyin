@@ -15,6 +15,7 @@
 <!-- Firebase (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <style>
 :root{
@@ -494,8 +495,12 @@ footer strong{color:var(--plaster);}
       </div>
       <div class="msg-banner" id="admin-login-msg"></div>
       <div class="form-row">
+        <label>الإيميل</label>
+        <input type="text" id="admin-email">
+      </div>
+      <div class="form-row">
         <label>كلمة السر</label>
-        <input type="text" id="admin-pass">
+        <input type="password" id="admin-pass">
       </div>
       <button class="btn btn-primary btn-block" onclick="adminLogin()">دخول</button>
     </div>
@@ -539,17 +544,18 @@ footer strong{color:var(--plaster);}
    نعطيوك فالأخير. الفيلد ديال المشرف (كلمة السر) خاصو يتبدل تحت.
    ====================================================================== */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "al-qarya.firebaseapp.com",
-  projectId: "al-qarya",
-  storageBucket: "al-qarya.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCKA2WfEnitboz8SkrPalbQBzxtH7tV5WU",
+  authDomain: "al-harafiyin.firebaseapp.com",
+  projectId: "al-harafiyin",
+  storageBucket: "al-harafiyin.firebasestorage.app",
+  messagingSenderId: "865205932611",
+  appId: "1:865205932611:web:21ce40647650b347c53af6"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-const ADMIN_PASSWORD = "qarya2026"; // TODO(HOSN): بدلها بكلمة سر خاصة بيك
+const auth = firebase.auth();
+// دخول الأدمن دابا كيدوز عبر Firebase Authentication (Email/Password)
+// خاصك تدير حساب واحد فـ Firebase Console > Authentication > Users
 
 const CATEGORIES = [
   {id:'electricite', label:'الكهربا', icon:'🔌'},
@@ -806,7 +812,8 @@ document.getElementById('join-form').addEventListener('submit', async function(e
   const btn = e.target.querySelector('button[type=submit]');
   btn.disabled = true; btn.textContent='كنسجلو...';
   try{
-    await db.collection('craftsmen').add({
+    const craftsmanRef = db.collection('craftsmen').doc();
+    await craftsmanRef.set({
       name: document.getElementById('join-name').value,
       phone: document.getElementById('join-phone').value,
       category: cat,
@@ -815,10 +822,14 @@ document.getElementById('join-form').addEventListener('submit', async function(e
       description: document.getElementById('join-desc').value,
       audio: audioBase64 || null,
       photos: joinPhotos,
-      selfie: joinSelfie,
-      cinPhoto: joinCin,
       status: 'pending',
       rating: 0, reviewsCount: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    // السيلفي والبطاقة الوطنية كيتسجلو فcollection خاصة، حتى الأدمن يقدر يشوفها
+    await db.collection('verifications').doc(craftsmanRef.id).set({
+      selfie: joinSelfie,
+      cinPhoto: joinCin,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     msg.className='msg-banner ok';
@@ -1009,16 +1020,23 @@ async function submitReview(craftsmanId){
 
 /* ---------------- Admin ---------------- */
 function adminLogin(){
+  const email = document.getElementById('admin-email').value;
   const pass = document.getElementById('admin-pass').value;
   const msg = document.getElementById('admin-login-msg');
-  if(pass === ADMIN_PASSWORD){
+  auth.signInWithEmailAndPassword(email, pass).catch(err=>{
+    msg.className='msg-banner err'; msg.textContent='الإيميل ولا كلمة السر غالطين.';
+  });
+}
+auth.onAuthStateChanged(user=>{
+  if(user){
     document.getElementById('admin-login').style.display='none';
     document.getElementById('admin-dash').style.display='block';
     loadAdminData();
   } else {
-    msg.className='msg-banner err'; msg.textContent='كلمة السر غالطة.';
+    document.getElementById('admin-login').style.display='block';
+    document.getElementById('admin-dash').style.display='none';
   }
-}
+});
 document.querySelectorAll('.admin-tabs button').forEach(b=>{
   b.addEventListener('click',()=>{
     document.querySelectorAll('.admin-tabs button').forEach(x=>x.classList.remove('active'));
@@ -1029,8 +1047,13 @@ document.querySelectorAll('.admin-tabs button').forEach(b=>{
 });
 
 function loadAdminData(){
-  db.collection('craftsmen').orderBy('createdAt','desc').get().then(snap=>{
-    const list = snap.docs.map(d=>({id:d.id,...d.data()}));
+  Promise.all([
+    db.collection('craftsmen').orderBy('createdAt','desc').get(),
+    db.collection('verifications').get()
+  ]).then(([craftsmenSnap, verifSnap])=>{
+    const verifMap = {};
+    verifSnap.docs.forEach(d=>{ verifMap[d.id] = d.data(); });
+    const list = craftsmenSnap.docs.map(d=>({id:d.id, ...d.data(), ...(verifMap[d.id]||{})}));
     renderAdminStats(list);
     renderAdminCraftsmen(list);
   });
@@ -1082,6 +1105,7 @@ async function approveCraftsman(id){
 async function deleteCraftsman(id){
   if(!confirm('متأكد بغيتي تحذف هاد الصانع؟')) return;
   await db.collection('craftsmen').doc(id).delete();
+  await db.collection('verifications').doc(id).delete().catch(()=>{});
   loadAdminData(); loadCraftsmen();
 }
 function renderAdminRequests(list){
